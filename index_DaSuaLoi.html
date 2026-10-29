@@ -1,0 +1,4827 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hệ Thống Quản Lý Xưởng Giày</title>
+  <style> 
+    :root {
+      --vcb-green-dark: #051F15;       /* Deep Forest Obsidian */
+      --vcb-green-primary: #04522B;    /* Vietcombank Signature Heritage Green */
+      --vcb-green-light: #0B733E;      /* Rich Emerald */
+      --vcb-green-surface: #0A3323;    /* Container Surface Dark */
+      --vcb-gold-light: #ECC880;       /* Pale Shimmering Gold */
+      --vcb-gold-primary: #C5A059;     /* Signature Metallic Gold (Pantone 873C) */
+      --vcb-gold-dark: #9D7731;        /* Antique Bronze Gold */
+      --vcb-gold-gradient: linear-gradient(135deg, #ECC880 0%, #C5A059 50%, #9D7731 100%);
+      --vcb-cream-bg: #F8F9F5;         /* Warm Ivory Canvas */
+      --vcb-cream-surface: #FFFFFF;    /* Pure White Card */
+      --vcb-cream-raised: #F0F3EC;     /* Raised Cream Surface */
+      --vcb-text-dark: #101E18;        /* Deep Obsidian Text */
+      --vcb-text-muted: #53665D;       /* Sophisticated Muted Slate */
+      --vcb-border-gold: rgba(197, 160, 89, 0.4); /* Hairline Gold Border */
+      --vcb-border-light: #E0E5DC;     /* Subtle Neutral Border */
+      --font-ui: "Segoe UI", Tahoma, Arial, sans-serif;
+      /* Semantic Status - Jewel Tones */
+      --status-success: #0B733E;
+      --status-success-bg: rgba(11, 115, 62, 0.12);
+      --status-warning: #B37400;
+      --status-warning-bg: rgba(179, 116, 0, 0.12);
+      --status-danger: #9B1B1B;
+      --status-danger-bg: rgba(155, 27, 27, 0.12);
+      --status-info: #04522B;
+      --status-info-bg: rgba(4, 82, 43, 0.1);
+      /* Mapping for System Compatibility */
+      --primary: var(--vcb-green-primary);
+      --primary-hover: var(--vcb-green-light);
+      --primary-light: rgba(4, 82, 43, 0.12);
+      --secondary: var(--vcb-text-muted);
+      --success: var(--status-success);
+      --success-light: var(--status-success-bg);
+      --warning: var(--status-warning);
+      --warning-light: var(--status-warning-bg);
+      --danger: var(--status-danger);
+      --danger-light: var(--status-danger-bg);
+      --info: var(--vcb-green-primary);
+      --info-light: var(--status-info-bg);
+      --bg-body: var(--vcb-cream-bg);
+      --bg-card: var(--vcb-cream-surface);
+      --border: var(--vcb-border-gold);
+      --border-focus: var(--vcb-gold-primary);
+      --text-main: var(--vcb-text-dark);
+      --text-muted: var(--vcb-text-muted);
+      --sidebar-width: 275px;
+      --header-height: 64px;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-size: 16px; /* Cỡ chữ tối thiểu toàn hệ thống theo ràng buộc 5 */
+      font-family: var(--font-ui);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      background-color: var(--vcb-cream-bg);
+      color: var(--vcb-text-dark);
+      line-height: 1.5;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* TIÊU ĐỀ THEO PHONG CÁCH QUÝ TỘC VIETCOMBANK PRIORITY */
+    h1 {
+      font-family: var(--font-ui);
+      font-size: 28px;
+      font-weight: 700;
+      line-height: 1.2;
+      color: var(--vcb-green-primary);
+      letter-spacing: 0.3px;
+    }
+    h2 {
+      font-family: var(--font-ui);
+      font-size: 22px;
+      font-weight: 700;
+      line-height: 1.25;
+      color: var(--vcb-green-primary);
+      letter-spacing: 0.2px;
+    }
+    h3 {
+      font-family: var(--font-ui);
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 1.3;
+      color: var(--vcb-green-primary);
+      letter-spacing: 0px;
+    }
+    strong, b { font-weight: 600; color: var(--vcb-green-dark); }
+    small { font-size: 16px; color: var(--vcb-text-muted); }
+
+    /* BỐ CỤC CHÍNH */
+    .app-container {
+      display: flex;
+      min-height: 100vh;
+      position: relative;
+      background-color: var(--vcb-cream-bg);
+    }
+
+    /* SIDEBAR ĐẲNG CẤP FOREST OBSIDIAN & GOLD */
+    .sidebar {
+      width: var(--sidebar-width);
+      background-color: var(--vcb-green-dark);
+      border-right: 1px solid var(--vcb-border-gold);
+      color: #D2E0DA;
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 1000;
+      transition: transform 0.3s ease;
+      overflow-y: auto;
+    }
+
+    .sidebar-brand {
+      padding: 20px;
+      background: linear-gradient(180deg, #072B1E 0%, #041B13 100%);
+      border-bottom: 2px solid var(--vcb-gold-primary);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .sidebar-brand-icon {
+      width: 42px;
+      height: 42px;
+      background: linear-gradient(135deg, #ECC880 0%, #C5A059 50%, #9D7731 100%);
+      color: #042D19;
+      border: 1px solid #ECC880;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 19px;
+      box-shadow: 0 4px 12px rgba(197, 160, 89, 0.4);
+    }
+
+    .sidebar-brand-title {
+      font-family: var(--font-ui);
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--vcb-gold-light);
+      line-height: 1.25;
+      letter-spacing: 0.5px;
+    }
+
+    .sidebar-nav {
+      list-style: none;
+      padding: 16px 0;
+      flex: 1;
+    }
+
+    .nav-item {
+      margin-bottom: 3px;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 20px;
+      color: #BFD1C9;
+      text-decoration: none;
+      cursor: pointer;
+      border-left: 4px solid transparent;
+      transition: all 0.2s ease;
+      font-size: 16px;
+      font-weight: 500;
+      letter-spacing: 0.2px;
+    }
+
+    .nav-link:hover {
+      background-color: rgba(197, 160, 89, 0.12);
+      color: var(--vcb-gold-light);
+    }
+
+    .nav-link.active {
+      background: linear-gradient(90deg, rgba(197, 160, 89, 0.24) 0%, rgba(4, 82, 43, 0.35) 100%);
+      color: var(--vcb-gold-light);
+      border-left-color: var(--vcb-gold-primary);
+      font-weight: 700;
+    }
+
+    .nav-icon {
+      display: inline-block;
+      width: 22px;
+      text-align: center;
+      font-size: 18px;
+    }
+
+    /* MAIN WRAPPER */
+    .main-wrapper {
+      flex: 1;
+      margin-left: var(--sidebar-width);
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      background-color: var(--vcb-cream-bg);
+      transition: margin-left 0.3s ease;
+    }
+
+    /* HEADER HOÀNG GIA VIETCOMBANK PRIORITY */
+    .top-header {
+      height: var(--header-height);
+      background: linear-gradient(180deg, #07281C 0%, #051F16 100%);
+      border-bottom: 2px solid var(--vcb-gold-primary);
+      box-shadow: 0 4px 16px rgba(5, 31, 21, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      position: sticky;
+      top: 0;
+      z-index: 900;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .menu-toggle-btn {
+      display: none;
+      background: var(--vcb-green-surface);
+      border: 1px solid var(--vcb-gold-primary);
+      border-radius: 6px;
+      padding: 6px 12px;
+      cursor: pointer;
+      font-size: 18px;
+      color: var(--vcb-gold-light);
+    }
+
+    .header-system-name {
+      font-family: var(--font-ui);
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--vcb-gold-light);
+      letter-spacing: 0.6px;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .notif-wrapper {
+      position: relative;
+    }
+
+    .notif-btn {
+      background: var(--vcb-green-surface);
+      border: 1px solid var(--vcb-gold-primary);
+      border-radius: 6px;
+      padding: 7px 15px;
+      cursor: pointer;
+      position: relative;
+      color: var(--vcb-gold-light);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .notif-btn:hover {
+      background: #0d422f;
+      border-color: var(--vcb-gold-light);
+    }
+
+    .notif-badge {
+      background: linear-gradient(135deg, #ECC880 0%, #C5A059 100%);
+      color: #042D19;
+      border-radius: 9999px;
+      padding: 1px 8px;
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+    .user-profile-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 15px;
+      border: 1px solid var(--vcb-gold-primary);
+      border-radius: 6px;
+      background: var(--vcb-green-surface);
+      color: var(--vcb-gold-light);
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .user-profile-badge:hover {
+      background: #0d422f;
+    }
+
+    .role-select {
+      border: 1px solid var(--vcb-gold-primary);
+      border-radius: 6px;
+      padding: 7px 12px;
+      background: var(--vcb-green-surface);
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--vcb-gold-light);
+      cursor: pointer;
+      outline: none;
+    }
+    .role-select:focus {
+      border-color: var(--vcb-gold-light);
+    }
+
+    /* BREADCRUMB & CONTENT AREA */
+    .content-container {
+      padding: 28px;
+      flex: 1;
+      max-width: 1440px;
+    }
+
+    .breadcrumb-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 20px;
+      color: var(--vcb-text-muted);
+      flex-wrap: wrap;
+      font-weight: 500;
+    }
+
+    .breadcrumb-link {
+      color: var(--vcb-green-primary);
+      text-decoration: none;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .quick-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    /* ============================================================
+       NÚT BẤM SANG TRỌNG VIETCOMBANK PRIORITY (METALLIC GOLD & EMERALD)
+       ============================================================ */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 22px;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      letter-spacing: 0.3px;
+      transition: all 0.2s ease;
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+    }
+
+    .btn:focus-visible {
+      outline: 2px solid var(--vcb-gold-primary);
+      outline-offset: 2px;
+    }
+
+    /* Primary: Nút Vàng Ánh Kim Hoàng Gia */
+    .btn-primary {
+      background: linear-gradient(135deg, #ECC880 0%, #C5A059 50%, #9D7731 100%);
+      color: #042D19;
+      border: 1px solid #ECC880;
+      box-shadow: 0 4px 14px rgba(197, 160, 89, 0.35);
+    }
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #F3DA9E 0%, #D4AF37 50%, #B2883A 100%);
+      box-shadow: 0 6px 18px rgba(197, 160, 89, 0.45);
+      color: #021F11;
+    }
+
+    /* Outline: Viền Vàng Kim */
+    .btn-outline {
+      background-color: transparent;
+      border: 1px solid var(--vcb-gold-primary);
+      color: #8A641E;
+    }
+    .btn-outline:hover {
+      background-color: rgba(197, 160, 89, 0.12);
+      color: #6E4D12;
+      border-color: #A88434;
+    }
+
+    /* Secondary: Nền Xám Kem Nhẹ */
+    .btn-secondary {
+      background-color: #F0F3EC;
+      border: 1px solid #CCD4C7;
+      color: var(--vcb-text-dark);
+    }
+    .btn-secondary:hover {
+      background-color: #E4E9DE;
+    }
+
+    /* Success: Xanh Ngọc Lục Bảo Vietcombank */
+    .btn-success {
+      background: linear-gradient(135deg, #0B733E 0%, #04522B 100%);
+      color: #FFFFFF;
+      border: 1px solid #C5A059;
+      box-shadow: 0 4px 12px rgba(4, 82, 43, 0.25);
+    }
+    .btn-success:hover {
+      background: linear-gradient(135deg, #0D8548 0%, #056133 100%);
+    }
+
+    /* Warning: Hổ Phách Quý Phái */
+    .btn-warning {
+      background: linear-gradient(135deg, #C58239 0%, #9D5E1E 100%);
+      color: #FFFFFF;
+      border: 1px solid #ECC880;
+      box-shadow: 0 4px 12px rgba(197, 130, 57, 0.25);
+    }
+    .btn-warning:hover {
+      background: linear-gradient(135deg, #D49045 0%, #AA6724 100%);
+    }
+
+    /* Danger: Đỏ Ruby Sang Trọng */
+    .btn-danger {
+      background: linear-gradient(135deg, #A82020 0%, #7A1212 100%);
+      color: #FFFFFF;
+      border: 1px solid #E88E8E;
+      box-shadow: 0 4px 12px rgba(168, 32, 32, 0.25);
+    }
+    .btn-danger:hover {
+      background: linear-gradient(135deg, #BA2525 0%, #8C1616 100%);
+    }
+
+    .btn-sm {
+      padding: 6px 14px;
+      font-size: 16px;
+    }
+
+    /* ============================================================
+       CARD & PHÒNG CHỜ VIP (PRIORITY LOUNGE AESTHETIC)
+       ============================================================ */
+    .card {
+      background-color: var(--vcb-cream-surface);
+      border: 1px solid var(--vcb-border-gold);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 6px 20px rgba(4, 82, 43, 0.04);
+      position: relative;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid rgba(197, 160, 89, 0.25);
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    /* KPI CARDS GRID */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+
+    .kpi-card {
+      background: #FFFFFF;
+      border: 1px solid var(--vcb-border-gold);
+      border-radius: 12px;
+      padding: 22px;
+      border-left: 5px solid var(--vcb-green-primary);
+      box-shadow: 0 6px 18px rgba(4, 82, 43, 0.04);
+      transition: transform 0.2s;
+    }
+    .kpi-card:hover {
+      transform: translateY(-2px);
+    }
+
+    .kpi-card.kpi-green { border-left-color: var(--vcb-green-primary); }
+    .kpi-card.kpi-yellow { border-left-color: var(--vcb-gold-primary); }
+    .kpi-card.kpi-red { border-left-color: #A82020; }
+
+    .kpi-title {
+      font-family: var(--font-ui);
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--vcb-text-muted);
+      letter-spacing: 0.2px;
+      margin-bottom: 8px;
+    }
+
+    .kpi-value {
+      font-family: var(--font-ui);
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--vcb-green-primary);
+      margin-bottom: 4px;
+      letter-spacing: 0.2px;
+    }
+
+    .kpi-subtext {
+      font-size: 16px;
+      color: var(--vcb-text-muted);
+    }
+
+    /* TABS THEO PHONG CÁCH BĂNG CHÂU */
+    .tabs-nav {
+      display: flex;
+      gap: 8px;
+      border-bottom: 2px solid rgba(197, 160, 89, 0.35);
+      margin-bottom: 24px;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+
+    .tab-btn {
+      padding: 12px 22px;
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      color: var(--vcb-text-muted);
+      cursor: pointer;
+      font-family: var(--font-ui);
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: -2px;
+      transition: all 0.2s;
+    }
+
+    .tab-btn:hover {
+      color: var(--vcb-green-primary);
+      background: rgba(197, 160, 89, 0.08);
+      border-radius: 6px 6px 0 0;
+    }
+
+    .tab-btn.active {
+      color: var(--vcb-green-primary);
+      border-bottom-color: var(--vcb-gold-primary);
+      font-weight: 700;
+      background: rgba(197, 160, 89, 0.12);
+      border-radius: 6px 6px 0 0;
+    }
+
+    /* BẢNG DỮ LIỆU ĐẲNG CẤP VIP */
+    .table-responsive {
+      width: 100%;
+      overflow-x: auto;
+      border: 1px solid var(--vcb-border-gold);
+      border-radius: 10px;
+      background: #FFFFFF;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 16px rgba(4, 82, 43, 0.03);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      min-width: 600px;
+    }
+
+    th, td {
+      padding: 14px 18px;
+      border-bottom: 1px solid rgba(197, 160, 89, 0.18);
+      vertical-align: middle;
+      font-size: 16px;
+    }
+
+    th {
+      background: linear-gradient(180deg, #08291C 0%, #051E15 100%);
+      font-family: var(--font-ui);
+      font-weight: 600;
+      color: var(--vcb-gold-light);
+      white-space: nowrap;
+      letter-spacing: 0.5px;
+      border-bottom: 2px solid var(--vcb-gold-primary);
+    }
+
+    tr:hover td {
+      background-color: rgba(197, 160, 89, 0.06);
+    }
+
+    /* BADGES VIP VIETCOMBANK */
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: 600;
+      text-align: center;
+      white-space: nowrap;
+      letter-spacing: 0.3px;
+    }
+
+    .badge-primary {
+      background: rgba(4, 82, 43, 0.12);
+      color: var(--vcb-green-primary);
+      border: 1px solid rgba(4, 82, 43, 0.4);
+    }
+    .badge-success {
+      background: rgba(11, 115, 62, 0.12);
+      color: #0B6B3D;
+      border: 1px solid rgba(11, 115, 62, 0.4);
+    }
+    .badge-warning {
+      background: rgba(197, 160, 89, 0.18);
+      color: #8A641E;
+      border: 1px solid var(--vcb-gold-primary);
+    }
+    .badge-danger {
+      background: rgba(168, 32, 32, 0.12);
+      color: #9B1B1B;
+      border: 1px solid rgba(168, 32, 32, 0.4);
+    }
+    .badge-secondary {
+      background: #F0F2EB;
+      color: var(--vcb-text-muted);
+      border: 1px solid #D2D8CE;
+    }
+
+    /* FORMS & INPUTS VỚI VIỀN GOLD */
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: var(--vcb-green-dark);
+      letter-spacing: 0.2px;
+    }
+
+    .form-control, .form-select {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--vcb-border-gold);
+      border-radius: 8px;
+      background: #FFFFFF;
+      color: var(--vcb-text-dark);
+      font-size: 16px;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .form-control:focus, .form-select:focus {
+      border-color: var(--vcb-gold-primary);
+      box-shadow: 0 0 0 3px rgba(197, 160, 89, 0.25);
+    }
+
+    .form-row {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .form-col {
+      flex: 1;
+      min-width: 220px;
+    }
+
+    /* SEARCH & FILTER BAR */
+    .filter-bar {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .search-input {
+      flex: 1;
+      min-width: 240px;
+    }
+
+    /* ALERTS / THÔNG BÁO */
+    .alert-box {
+      padding: 16px 20px;
+      border-radius: 10px;
+      margin-bottom: 16px;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    .alert-box:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+    }
+
+    .alert-warning {
+      background: #FFF9ED;
+      border-color: var(--vcb-gold-primary);
+      color: #8A641E;
+    }
+
+    .alert-danger {
+      background: #FEF2F2;
+      border-color: #F87171;
+      color: #991B1B;
+    }
+
+    .alert-info {
+      background: #F0FDF4;
+      border-color: var(--vcb-green-primary);
+      color: var(--vcb-green-primary);
+    }
+
+    /* MODAL POPUPS HOÀNG GIA */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(5, 29, 20, 0.68);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-backdrop.active {
+      display: flex;
+    }
+
+    .modal-dialog {
+      background: #FFFFFF;
+      border: 2px solid var(--vcb-gold-primary);
+      border-radius: 14px;
+      width: 100%;
+      max-width: 720px;
+      max-height: 90vh;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 25px 60px rgba(4, 82, 43, 0.25);
+    }
+
+    .modal-header {
+      padding: 18px 24px;
+      background: linear-gradient(180deg, #07281C 0%, #051F16 100%);
+      border-bottom: 2px solid var(--vcb-gold-primary);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--vcb-gold-light);
+    }
+
+    .modal-title {
+      font-family: var(--font-ui);
+      font-size: 19px;
+      font-weight: 700;
+      color: var(--vcb-gold-light);
+      letter-spacing: 0.4px;
+    }
+
+    .modal-close {
+      background: var(--vcb-green-surface);
+      border: 1px solid var(--vcb-gold-primary);
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      font-size: 18px;
+      font-weight: bold;
+      color: var(--vcb-gold-light);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+    }
+    .modal-close:hover {
+      background: #0D422F;
+      border-color: #FFFFFF;
+    }
+
+    .modal-body {
+      padding: 24px;
+      overflow-y: auto;
+    }
+
+    .modal-footer {
+      padding: 16px 24px;
+      border-top: 1px solid var(--vcb-border-gold);
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      background: #F8F9F5;
+    }
+
+    /* CHARTS CONTAINER */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+
+    .chart-card {
+      background: #FFFFFF;
+      border: 1px solid var(--vcb-border-gold);
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 4px 16px rgba(4, 82, 43, 0.04);
+    }
+
+    .canvas-container {
+      width: 100%;
+      height: 240px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    canvas {
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    /* TOAST MESSAGE (EMERALD & GOLD) */
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 3000;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .toast-msg {
+      background: linear-gradient(180deg, #092D1F 0%, #051C14 100%);
+      border: 1px solid var(--vcb-gold-primary);
+      color: #FFFFFF;
+      padding: 14px 22px;
+      border-radius: 10px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      border-left: 5px solid var(--vcb-gold-light);
+      animation: slideIn 0.3s ease;
+      min-width: 280px;
+      max-width: 420px;
+    }
+
+    .toast-msg.success { border-left-color: var(--vcb-gold-light); }
+    .toast-msg.error { border-left-color: #F87171; }
+    .toast-msg.warning { border-left-color: var(--vcb-gold-primary); }
+
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    /* DROPDOWN NOTIFICATION LIST */
+    .notif-dropdown {
+      display: none;
+      position: absolute;
+      top: 52px;
+      right: 0;
+      width: 340px;
+      background: #FFFFFF;
+      border: 2px solid var(--vcb-gold-primary);
+      border-radius: 10px;
+      box-shadow: 0 16px 40px rgba(5, 31, 21, 0.25);
+      z-index: 1100;
+      max-height: 380px;
+      overflow-y: auto;
+    }
+
+    .notif-dropdown.active {
+      display: block;
+    }
+
+    .notif-item {
+      padding: 14px 18px;
+      border-bottom: 1px solid rgba(197, 160, 89, 0.2);
+      cursor: pointer;
+      transition: background-color 0.15s;
+    }
+
+    .notif-item:hover {
+      background-color: #F8F9F5;
+    }
+
+    /* RESPONSIVE & DI ĐỘNG (TỐI THIỂU 360PX) */
+    @media (max-width: 900px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+      .sidebar.open {
+        transform: translateX(0);
+      }
+      .main-wrapper {
+        margin-left: 0;
+      }
+      .menu-toggle-btn {
+        display: inline-block;
+      }
+      .sidebar-backdrop {
+        display: none;
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(5, 29, 20, 0.6);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+        z-index: 999;
+      }
+      .sidebar-backdrop.active {
+        display: block;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .top-header {
+        padding: 0 14px;
+      }
+      .content-container {
+        padding: 16px;
+      }
+      .header-system-name {
+        font-size: 16px;
+      }
+      .kpi-grid {
+        grid-template-columns: 1fr;
+      }
+      .charts-grid {
+        grid-template-columns: 1fr;
+      }
+      .modal-dialog {
+        margin: 10px;
+        width: 95%;
+      }
+    }
+
+    /* HÓA ĐƠN IN ẤN (@media print) */
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #printInvoiceArea, #printInvoiceArea * {
+        visibility: visible;
+      }
+      #printInvoiceArea {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        padding: 20px;
+        background: white;
+      }
+      .no-print {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleSidebar(false)"></div>
+  <div class="app-container">
+    <!-- ==================== SIDEBAR ĐIỀU HƯỚNG ==================== -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <div class="sidebar-brand-icon">👑</div>
+        <div>
+          <div class="sidebar-brand-title">XƯỞNG GIÀY </div>
+          <small style="color: var(--vcb-gold-primary); font-weight: 600; letter-spacing: 0.5px;"></small>
+        </div>
+      </div>
+
+      <ul class="sidebar-nav">
+        <li class="nav-item">
+          <a class="nav-link active" onclick="navigate('dashboard')">
+            <span class="nav-icon">📊</span>
+            <span>Dashboard</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" onclick="navigate('categories')">
+            <span class="nav-icon">📁</span>
+            <span>Danh mục</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" onclick="navigate('bom')">
+            <span class="nav-icon">📐</span>
+            <span>Định mức BOM</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" onclick="navigate('production')">
+            <span class="nav-icon">⚙️</span>
+            <span>Sản xuất</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" onclick="navigate('warehouse')">
+            <span class="nav-icon">📦</span>
+            <span>Quản lý kho</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" onclick="navigate('sales')">
+            <span class="nav-icon">🛒</span>
+            <span>Bán hàng</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" onclick="navigate('cashflow')">
+            <span class="nav-icon">💰</span>
+            <span>Thu chi</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" onclick="navigate('reports')">
+            <span class="nav-icon">📈</span>
+            <span>Báo cáo & Cảnh báo</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" onclick="navigate('account')">
+            <span class="nav-icon">👤</span>
+            <span>Tài khoản</span>
+          </a>
+        </li>
+      </ul>
+
+      <div style="padding: 16px; border-top: 1px solid var(--vcb-border-gold); background: #031710;">
+        <small style="color: var(--vcb-gold-primary); display: block; margin-bottom: 8px; font-weight: 500;">Dữ liệu lưu trữ trình duyệt (localStorage)</small>
+        <div style="display: flex; gap: 8px; flex-direction: column;">
+          <button class="btn btn-outline btn-sm" style="color: var(--vcb-gold-light); border-color: var(--vcb-gold-primary); width: 100%; font-weight: 600;" onclick="loadSampleData()">
+            ✨ Nạp dữ liệu mẫu xưởng giày
+          </button>
+          <button class="btn btn-outline btn-sm" style="color: #F87171; border-color: rgba(248, 113, 113, 0.4); width: 100%;" onclick="resetAllData()">
+            🗑️ Xóa toàn bộ dữ liệu
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ==================== MAIN WRAPPER ==================== -->
+    <div class="main-wrapper">
+      <!-- HEADER PHÍA TRÊN -->
+      <header class="top-header">
+        <div class="header-left">
+          <button class="menu-toggle-btn" onclick="toggleSidebar(true)" aria-label="Mở menu">
+            ☰
+          </button>
+          <span class="header-system-name">💎 QUẢN TRỊ XƯỞNG SẢN XUẤT</span>
+        </div>
+
+        <div class="header-right">
+          <!-- CHUÔNG THÔNG BÁO -->
+          <div class="notif-wrapper">
+            <button class="notif-btn" onclick="toggleNotifDropdown()">
+              <span>🔔</span>
+              <span>Cảnh báo</span>
+              <span class="notif-badge" id="headerNotifBadge">0</span>
+            </button>
+            <div class="notif-dropdown" id="notifDropdown">
+              <div style="padding: 12px 16px; font-weight: 700; border-bottom: 1px solid var(--border); background: #f8fafc;">
+                Cảnh báo thông minh từ hệ thống
+              </div>
+              <div id="notifListContainer">
+                <div style="padding: 16px; text-align: center; color: var(--text-muted);">
+                  (đang cập nhật)
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- PHÂN QUYỀN VAI TRÒ -->
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <label for="currentRoleSelect" style="font-weight: 600; display: none;">Vai trò:</label>
+            <select class="role-select" id="currentRoleSelect" onchange="changeUserRole(this.value)">
+              <option value="owner">Chủ xưởng</option>
+              <option value="warehouse">Thủ kho</option>
+              <option value="sales">Bán hàng</option>
+            </select>
+          </div>
+
+          <div class="user-profile-badge" onclick="navigate('account')" title="Xem thông tin tài khoản">
+            <span>👤</span>
+            <span id="currentUserNameDisplay" style="font-weight: 600;">Chủ xưởng (Demo)</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- KHU VỰC NỘI DUNG -->
+      <main class="content-container">
+        <!-- BREADCRUMB -->
+        <div class="breadcrumb-bar">
+          <span>Trang chủ</span>
+          <span>/</span>
+          <span id="breadcrumbCurrent" style="font-weight: 600; color: var(--text-main);">Dashboard</span>
+        </div>
+
+        <!-- ==================== PHÂN HỆ 1: DASHBOARD ==================== -->
+        <section id="sec-dashboard" class="content-section">
+          <div class="quick-toolbar">
+            <div>
+              <h1>Dashboard – Bảng điều khiển</h1>
+              <small>Tổng hợp tình hình sản xuất, kinh doanh và tồn kho của xưởng giày</small>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+              <label for="dashboardPeriodFilter" style="font-weight: 600;">Lọc theo:</label>
+              <select id="dashboardPeriodFilter" class="form-select" style="width: auto;" onchange="renderDashboard()">
+                <option value="month">Tháng này</option>
+                <option value="week">Tuần này</option>
+                <option value="quarter">Quý này</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- 4 THẺ KPI -->
+          <div class="kpi-grid">
+            <div class="kpi-card kpi-green">
+              <div class="kpi-title">Doanh thu thời gian chọn</div>
+              <div class="kpi-value" id="kpiRevenue">0 ₫</div>
+              <div class="kpi-subtext" id="kpiRevenueSub">Tính từ đơn hàng đã xác nhận</div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-title">Giá trị tồn kho hiện tại</div>
+              <div class="kpi-value" id="kpiStockValue">0 ₫</div>
+              <div class="kpi-subtext" id="kpiStockValueSub">Nguyên vật liệu & Thành phẩm</div>
+            </div>
+
+            <div class="kpi-card kpi-yellow">
+              <div class="kpi-title">Lệnh sản xuất đang chạy</div>
+              <div class="kpi-value" id="kpiRunningOrders">0</div>
+              <div class="kpi-subtext">Trạng thái: Đang sản xuất</div>
+            </div>
+
+            <div class="kpi-card kpi-red">
+              <div class="kpi-title">Nguyên liệu sắp cạn kiệt</div>
+              <div class="kpi-value" id="kpiLowMaterials">0</div>
+              <div class="kpi-subtext">Dưới ngưỡng tồn tối thiểu</div>
+            </div>
+          </div>
+
+          <!-- BIỂU ĐỒ NGUYÊN BẢN (CANVAS/SVG) -->
+          <div class="charts-grid">
+            <div class="chart-card">
+              <div class="card-header">
+                <h2>Doanh thu hoặc Sản phẩm bán chạy</h2>
+                <small id="chartPeriodLabel">Kỳ: Tháng này</small>
+              </div>
+              <div class="canvas-container">
+                <canvas id="salesChartCanvas" width="450" height="240"></canvas>
+              </div>
+              <div id="salesChartEmptyNote" style="text-align: center; color: var(--text-muted); margin-top: 8px;">
+                (đang cập nhật)
+              </div>
+            </div>
+
+            <div class="chart-card">
+              <div class="card-header">
+                <h2>Phân bổ tồn kho nguyên vật liệu</h2>
+                <small>Tỷ trọng số lượng khả dụng</small>
+              </div>
+              <div class="canvas-container">
+                <canvas id="materialChartCanvas" width="450" height="240"></canvas>
+              </div>
+              <div id="materialChartEmptyNote" style="text-align: center; color: var(--text-muted); margin-top: 8px;">
+                (đang cập nhật)
+              </div>
+            </div>
+          </div>
+
+          <!-- DANH SÁCH CẢNH BÁO TẠI DASHBOARD -->
+          <div class="card">
+            <div class="card-header">
+              <h2>Cảnh báo sản xuất & Tồn kho thông minh</h2>
+              <button class="btn btn-outline btn-sm" onclick="navigate('reports')">Xem chi tiết báo cáo →</button>
+            </div>
+            <div id="dashboardAlertsContainer">
+              <div style="padding: 16px; color: var(--text-muted); text-align: center;">
+                (đang cập nhật)
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== PHÂN HỆ 2: QUẢN LÝ DANH MỤC ==================== -->
+        <section id="sec-categories" class="content-section" style="display: none;">
+          <div class="quick-toolbar">
+            <div>
+              <h1>Quản lý danh mục</h1>
+              <small>Quản lý Nguyên vật liệu, Sản phẩm giày / SKU và Đối tác kinh doanh</small>
+            </div>
+          </div>
+
+          <div class="tabs-nav">
+            <button class="tab-btn active" onclick="switchCategoryTab('materials')"> Nguyên vật liệu</button>
+            <button class="tab-btn" onclick="switchCategoryTab('products')"> Sản phẩm</button>
+            <button class="tab-btn" onclick="switchCategoryTab('partners')">Nhà cung cấp & Khách hàng</button>
+          </div>
+
+          <!-- TAB 2.1: NGUYÊN VẬT LIỆU -->
+          <div id="cat-tab-materials" class="cat-tab-content">
+            <div class="card">
+              <div class="card-header">
+                <h2>Danh sách nguyên vật liệu xưởng giày</h2>
+                <button class="btn btn-primary" onclick="openMaterialModal()">+ Thêm nguyên vật liệu</button>
+              </div>
+
+              <div class="filter-bar">
+                <input type="text" id="searchMaterialInput" class="form-control search-input" placeholder="Tìm kiếm theo mã, tên nguyên vật liệu..." oninput="renderMaterialsTable()">
+                <select id="filterMaterialStatus" class="form-select" style="width: 200px;" onchange="renderMaterialsTable()">
+                  <option value="all">Tất cả trạng thái</option>
+                  <option value="active">Đang sử dụng</option>
+                  <option value="disabled">Đã vô hiệu hóa</option>
+                  <option value="low">Sắp cạn kiệt</option>
+                </select>
+              </div>
+
+              <div class="table-responsive">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Mã NVL</th>
+                      <th>Tên nguyên vật liệu</th>
+                      <th>Đơn vị tính</th>
+                      <th>Giá nhập ước tính (₫)</th>
+                      <th>Tồn kho hiện tại</th>
+                      <th>Ngưỡng tối thiểu</th>
+                      <th>Trạng thái</th>
+                      <th>Thao tác</th>
+                    </tr>
+                  </thead>
+                  <tbody id="materialsTableBody">
+                    <tr><td colspan="8" style="text-align: center; color: var(--text-muted);">(đang cập nhật)</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 2.2: SẢN PHẨM / SKU -->
+          <div id="cat-tab-products" class="cat-tab-content" style="display: none;">
+            <div class="card">
+              <div class="card-header">
+                <h2>Danh sách mẫu giày & SKU thành phẩm</h2>
+                <button class="btn btn-primary" onclick="openProductModal()">+ Thêm mẫu sản phẩm</button>
+              </div>
+
+              <div class="filter-bar">
+                <input type="text" id="searchProductInput" class="form-control search-input" placeholder="Tìm theo mã SP, tên mẫu giày, size, màu..." oninput="renderProductsTable()">
+              </div>
+
+              <div class="table-responsive">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Mã SP</th>
+                      <th>Tên mẫu giày</th>
+                      <th>Size</th>
+                      <th>Màu sắc</th>
+                      <th>Giá bán niêm yết (₫)</th>
+                      <th>Tồn kho thành phẩm</th>
+                      <th>Thao tác</th>
+                    </tr>
+                  </thead>
+                  <tbody id="productsTableBody">
+                    <tr><td colspan="7" style="text-align: center; color: var(--text-muted);">Chưa có dữ liệu tồn kho</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 2.3: ĐỐI TÁC (NCC & KHÁCH HÀNG) -->
+          <div id="cat-tab-partners" class="cat-tab-content" style="display: none;">
+            <div class="card">
+              <div class="card-header">
+                <h2>Danh sách đối tác (Nhà cung cấp & Khách hàng)</h2>
+                <button class="btn btn-primary" onclick="openPartnerModal()">+ Thêm đối tác mới</button>
+              </div>
+
+              <div class="filter-bar">
+                <input type="text" id="searchPartnerInput" class="form-control search-input" placeholder="Tìm theo tên, SĐT, địa chỉ đối tác..." oninput="renderPartnersTable()">
+                <select id="filterPartnerType" class="form-select" style="width: 220px;" onchange="renderPartnersTable()">
+                  <option value="all">Tất cả đối tác</option>
+                  <option value="supplier">Nhà cung cấp nguyên liệu</option>
+                  <option value="customer">Khách hàng mua giày</option>
+                </select>
+              </div>
+
+              <div class="table-responsive">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Loại</th>
+                      <th>Tên đối tác</th>
+                      <th>Số điện thoại</th>
+                      <th>Địa chỉ</th>
+                      <th>Công nợ hiện tại (₫)</th>
+                      <th>Lịch sử giao dịch</th>
+                      <th>Thao tác</th>
+                    </tr>
+                  </thead>
+                  <tbody id="partnersTableBody">
+                    <tr><td colspan="7" style="text-align: center; color: var(--text-muted);">Chưa có đơn hàng để tính lợi nhuận</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== PHÂN HỆ 3: ĐỊNH MỨC BOM ==================== -->
+        <section id="sec-bom" class="content-section" style="display: none;">
+          <div class="quick-toolbar">
+            <div>
+              <h1>Quản lý định mức nguyên vật liệu – BOM</h1>
+              <small>Khai báo cấu trúc vật tư sản xuất cho 1 đôi giày, chốt phiên bản và mô phỏng nhu cầu</small>
+            </div>
+            <button class="btn btn-primary" onclick="openCreateBomModal()">+ Thiết lập BOM mới</button>
+          </div>
+
+          <!-- KHU VỰC THỬ TÍNH TOÁN NHU CẦU NGUYÊN LIỆU THEO SỐ LƯỢNG -->
+          <div class="card" style="background: #f8fafc; border: 2px dashed var(--border);">
+            <h2 style="margin-bottom: 12px;">Công cụ tính toán nguyên liệu theo quy mô sản xuất</h2>
+            <div class="form-row" style="align-items: flex-end;">
+              <div class="form-col">
+                <label class="form-label">Chọn sản phẩm / mẫu giày:</label>
+                <select id="calcBomProductSelect" class="form-select" onchange="calculateBomRequirement()">
+                  <option value="">-- Chọn sản phẩm --</option>
+                </select>
+              </div>
+              <div class="form-col" style="max-width: 200px;">
+                <label class="form-label">Số lượng cần may (đôi):</label>
+                <input type="number" id="calcBomQtyInput" class="form-control" value="50" min="1" oninput="calculateBomRequirement()">
+              </div>
+            </div>
+
+            <div id="calcBomResultContainer" style="margin-top: 16px;">
+              <!-- Kết quả tính tự động -->
+              <div style="color: var(--text-muted); font-style: italic;">Chọn sản phẩm và số lượng để xem nhu cầu nguyên vật liệu thực tế.</div>
+            </div>
+          </div>
+
+          <!-- BẢNG DANH SÁCH BOM ĐÃ LƯU -->
+          <div class="card">
+            <div class="card-header">
+              <h2>Danh sách cấu trúc định mức sản phẩm (BOM)</h2>
+            </div>
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Mã BOM</th>
+                    <th>Sản phẩm áp dụng</th>
+                    <th>Phiên bản</th>
+                    <th>Trạng thái phiên bản</th>
+                    <th>Số loại NVL</th>
+                    <th>Chi phí ước tính / đôi (₫)</th>
+                    <th>Thao tác</th>
+                  </tr>
+                </thead>
+                <tbody id="bomListTableBody">
+                  <tr><td colspan="7" style="text-align: center; color: var(--text-muted);">(đang cập nhật)</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== PHÂN HỆ 4: QUẢN LÝ LỆNH SẢN XUẤT ==================== -->
+        <section id="sec-production" class="content-section" style="display: none;">
+          <div class="quick-toolbar">
+            <div>
+              <h1>Quản lý lệnh sản xuất</h1>
+              <small>Lập lệnh may giày, kiểm tra tồn kho NVL khả dụng, xuất xưởng và nhập kho thành phẩm</small>
+            </div>
+            <button class="btn btn-primary" onclick="openCreateProdOrderModal()">+ Tạo lệnh sản xuất mới</button>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h2>Danh sách lệnh sản xuất</h2>
+              <div style="display: flex; gap: 8px;">
+                <select id="filterProdOrderStatus" class="form-select" onchange="renderProductionOrdersTable()">
+                  <option value="all">Tất cả trạng thái</option>
+                  <option value="Chờ duyệt">Chờ duyệt</option>
+                  <option value="Đang sản xuất">Đang sản xuất</option>
+                  <option value="Hoàn thành">Hoàn thành</option>
+                  <option value="Đã hủy">Đã hủy</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Mã lệnh</th>
+                    <th>Sản phẩm</th>
+                    <th>Số lượng (đôi)</th>
+                    <th>Ngày bắt đầu</th>
+                    <th>Tình trạng NVL</th>
+                    <th>Trạng thái lệnh</th>
+                    <th>Thao tác quy trình</th>
+                  </tr>
+                </thead>
+                <tbody id="prodOrdersTableBody">
+                  <tr><td colspan="7" style="text-align: center; color: var(--text-muted);">(đang cập nhật)</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== PHÂN HỆ 5: QUẢN LÝ KHO ==================== -->
+        <section id="sec-warehouse" class="content-section" style="display: none;">
+          <div class="quick-toolbar">
+            <div>
+              <h1>Quản lý kho</h1>
+              <small>Kho nguyên vật liệu, kho thành phẩm giày, lập phiếu nhập xuất và nhật ký lịch sử</small>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button class="btn btn-success" onclick="openStockInModal()">+ Lập phiếu nhập kho</button>
+            </div>
+          </div>
+
+          <div class="tabs-nav">
+            <button class="tab-btn active" onclick="switchWarehouseTab('stock-materials')">Tồn kho nguyên liệu</button>
+            <button class="tab-btn" onclick="switchWarehouseTab('stock-products')">Tồn kho thành phẩm</button>
+            <button class="tab-btn" onclick="switchWarehouseTab('history')">Lịch sử giao dịch kho</button>
+          </div>
+
+          <!-- TAB TỒN NGUYÊN LIỆU -->
+          <div id="wh-tab-stock-materials" class="wh-tab-content">
+            <div class="card">
+              <div class="card-header">
+                <h2>Tồn kho nguyên vật liệu</h2>
+                <small>Cảnh báo màu khi số lượng chạm hoặc dưới ngưỡng tối thiểu</small>
+              </div>
+              <div class="table-responsive">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Mã NVL</th>
+                      <th>Tên nguyên vật liệu</th>
+                      <th>Đơn vị tính</th>
+                      <th>Tồn kho thực tế</th>
+                      <th>Ngưỡng tối thiểu</th>
+                      <th>Đơn giá ước tính (₫)</th>
+                      <th>Tổng giá trị tồn (₫)</th>
+                      <th>Tình trạng</th>
+                    </tr>
+                  </thead>
+                  <tbody id="whMaterialStockTableBody">
+                    <tr><td colspan="8" style="text-align: center; color: var(--text-muted);">(đang cập nhật)</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB TỒN THÀNH PHẨM -->
+          <div id="wh-tab-stock-products" class="wh-tab-content" style="display: none;">
+            <div class="card">
+              <div class="card-header">
+                <h2>Tồn kho giày thành phẩm</h2>
+                <small>Quản lý số lượng tồn sẵn sàng xuất bán theo từng SKU</small>
+              </div>
+              <div class="table-responsive">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Mã SKU</th>
+                      <th>Tên mẫu giày</th>
+                      <th>Size</th>
+                      <th>Màu sắc</th>
+                      <th>Tồn kho (đôi)</th>
+                      <th>Giá niêm yết (₫)</th>
+                      <th>Ước tính giá trị bán (₫)</th>
+                      <th>Tình trạng bán</th>
+                    </tr>
+                  </thead>
+                  <tbody id="whProductStockTableBody">
+                    <tr><td colspan="8" style="text-align: center; color: var(--text-muted);">(đang cập nhật)</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB LỊCH SỬ KHO (BẤT BIẾN - KHÔNG SỬA / XÓA) -->
+          <div id="wh-tab-history" class="wh-tab-content" style="display: none;">
+            <div class="card">
+              <div class="card-header">
+                <h2>Nhật ký lịch sử giao dịch kho</h2>
+                <div style="color: var(--danger); font-weight: 600;">
+                  ⚠️ Lưu ý: Nhật ký kho được bảo vệ bất biến, không cho phép sửa hoặc xóa trực tiếp
+                </div>
+              </div>
+
+              <div class="filter-bar">
+                <input type="text" id="searchWhHistoryInput" class="form-control search-input" placeholder="Tìm theo mã phiếu, tên hàng, đối tác..." oninput="renderWarehouseHistoryTable()">
+                <select id="filterWhHistoryType" class="form-select" style="width: 200px;" onchange="renderWarehouseHistoryTable()">
+                  <option value="all">Tất cả loại giao dịch</option>
+                  <option value="Nhập">Giao dịch Nhập</option>
+                  <option value="Xuất">Giao dịch Xuất</option>
+                  <option value="Bán">Giao dịch Bán</option>
+                  <option value="Trả">Giao dịch Trả</option>
+                </select>
+              </div>
+
+              <div class="table-responsive">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Mã phiếu</th>
+                      <th>Ngày thực hiện</th>
+                      <th>Loại</th>
+                      <th>Tên mặt hàng</th>
+                      <th>Số lượng</th>
+                      <th>Tồn trước</th>
+                      <th>Tồn sau</th>
+                      <th>Ghi chú / Đối tượng liên quan</th>
+                    </tr>
+                  </thead>
+                  <tbody id="whHistoryTableBody">
+                    <tr><td colspan="8" style="text-align: center; color: var(--text-muted);">(đang cập nhật)</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== PHÂN HỆ 6: QUẢN LÝ BÁN HÀNG ==================== -->
+        <section id="sec-sales" class="content-section" style="display: none;">
+          <div class="quick-toolbar">
+            <div>
+              <h1>Quản lý bán hàng</h1>
+              <small>Lập đơn hàng bán giày, kiểm tra kho thành phẩm, trừ kho tự động và in hóa đơn</small>
+            </div>
+            <button class="btn btn-primary" onclick="openCreateOrderModal()">+ Lập đơn hàng mới</button>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h2>Danh sách đơn bán hàng</h2>
+              <div class="filter-bar" style="margin-bottom: 0;">
+                <input type="text" id="searchSalesOrderInput" class="form-control" style="width: 250px;" placeholder="Tìm theo mã đơn, khách hàng..." oninput="renderSalesOrdersTable()">
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Mã đơn</th>
+                    <th>Ngày lập</th>
+                    <th>Khách hàng</th>
+                    <th>Sản phẩm / SKU</th>
+                    <th>SL (đôi)</th>
+                    <th>Tổng tiền (₫)</th>
+                    <th>Đã thu (₫)</th>
+                    <th>Còn thiếu (₫)</th>
+                    <th>Thanh toán</th>
+                    <th>Giao hàng</th>
+                    <th>Thao tác</th>
+                  </tr>
+                </thead>
+                <tbody id="salesOrdersTableBody">
+                  <tr><td colspan="11" style="text-align: center; color: var(--text-muted);">(đang cập nhật)</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== PHÂN HỆ 7: QUẢN LÝ THU CHI ==================== -->
+        <section id="sec-cashflow" class="content-section" style="display: none;">
+          <div class="quick-toolbar">
+            <div>
+              <h1>Quản lý thu chi</h1>
+              <small>Sổ quỹ tiền mặt và chuyển khoản phát sinh từ hoạt động mua bán và chi phí sản xuất</small>
+            </div>
+            <button class="btn btn-primary" onclick="openCashflowModal()">+ Ghi nhận giao dịch thu / chi</button>
+          </div>
+
+          <!-- THẺ TỔNG KẾT THU CHI THỰC TẾ -->
+          <div class="kpi-grid">
+            <div class="kpi-card kpi-green">
+              <div class="kpi-title">Tổng thu thực tế ghi nhận</div>
+              <div class="kpi-value" id="cfTotalIncome">0 ₫</div>
+              <div class="kpi-subtext">Từ tiền bán hàng & nguồn thu đã nhập</div>
+            </div>
+
+            <div class="kpi-card kpi-red">
+              <div class="kpi-title">Tổng chi thực tế ghi nhận</div>
+              <div class="kpi-value" id="cfTotalExpense">0 ₫</div>
+              <div class="kpi-subtext">Mua nguyên vật liệu & chi phí thực tế</div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-title">Chênh lệch thu chi (Tồn quỹ)</div>
+              <div class="kpi-value" id="cfNetDifference">0 ₫</div>
+              <div class="kpi-subtext">Tổng thu trừ Tổng chi</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h2>Nhật ký thu chi tiền mặt / chuyển khoản</h2>
+            </div>
+
+            <div class="filter-bar">
+              <input type="text" id="searchCashflowInput" class="form-control search-input" placeholder="Tìm kiếm nội dung thu chi, đối tác..." oninput="renderCashflowTable()">
+              <select id="filterCashflowType" class="form-select" style="width: 200px;" onchange="renderCashflowTable()">
+                <option value="all">Tất cả loại giao dịch</option>
+                <option value="Thu">Khoản Thu (+)</option>
+                <option value="Chi">Khoản Chi (-)</option>
+              </select>
+            </div>
+
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Mã giao dịch</th>
+                    <th>Ngày ghi nhận</th>
+                    <th>Phân loại</th>
+                    <th>Nội dung chi tiết</th>
+                    <th>Số tiền (₫)</th>
+                    <th>Thông tin liên quan</th>
+                  </tr>
+                </thead>
+                <tbody id="cashflowTableBody">
+                  <tr><td colspan="6" style="text-align: center; color: var(--text-muted);">(đang cập nhật)</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== PHÂN HỆ 8: BÁO CÁO & CẢNH BÁO THÔNG MINH ==================== -->
+        <section id="sec-reports" class="content-section" style="display: none;">
+          <div class="quick-toolbar">
+            <div>
+              <h1>Báo cáo và Cảnh báo thông minh</h1>
+              <small>Cơ chế quy tắc so sánh tự động cảnh báo tồn kho, kiểm soát hao hụt và phân tích lợi nhuận</small>
+            </div>
+          </div>
+
+          <div class="tabs-nav">
+            <button class="tab-btn active" onclick="switchReportTab('report-stock')"> Báo cáo tồn kho</button>
+            <button class="tab-btn" onclick="switchReportTab('report-finance')"> Doanh thu & Lợi nhuận</button>
+            <button class="tab-btn" onclick="switchReportTab('report-alerts')"> Cảnh báo bất thường sản xuất</button>
+          </div>
+
+          <!-- 8.1 BÁO CÁO TỒN KHO -->
+          <div id="rep-tab-stock" class="rep-tab-content">
+            <div class="card">
+              <div class="card-header">
+                <h2>Báo cáo chi tiết tồn kho nguyên liệu và thành phẩm</h2>
+                <small>Hàng dưới ngưỡng tồn tối thiểu được tô viền đỏ cảnh báo</small>
+              </div>
+              <div class="table-responsive">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Loại mặt hàng</th>
+                      <th>Mã</th>
+                      <th>Tên hàng hóa</th>
+                      <th>Tồn kho hiện tại</th>
+                      <th>Ngưỡng tối thiểu</th>
+                      <th>Tình trạng cảnh báo</th>
+                      <th>Thao tác xử lý</th>
+                    </tr>
+                  </thead>
+                  <tbody id="reportStockTableBody">
+                    <tr><td colspan="7" style="text-align: center; color: var(--text-muted);">(đang cập nhật)</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- 8.2 BÁO CÁO DOANH THU VÀ LỢI NHUẬN SƠ BỘ -->
+          <div id="rep-tab-finance" class="rep-tab-content" style="display: none;">
+            <div class="card">
+              <div class="card-header">
+                <h2>Báo cáo doanh thu & Lợi nhuận gộp (Doanh thu - Giá vốn NVL)</h2>
+                <div style="display: flex; gap: 8px;">
+                  <select id="reportFinanceTimeFilter" class="form-select" onchange="renderFinanceReport()">
+                    <option value="all">Toàn bộ thời gian</option>
+                    <option value="month">Tháng hiện tại</option>
+                    <option value="quarter">Quý hiện tại</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="kpi-grid">
+                <div class="kpi-card kpi-green">
+                  <div class="kpi-title">Tổng doanh thu bán hàng</div>
+                  <div class="kpi-value" id="repTotalRevenue">0 ₫</div>
+                  <div class="kpi-subtext">Từ các đơn hàng đã xác nhận</div>
+                </div>
+                <div class="kpi-card kpi-yellow">
+                  <div class="kpi-title">Ước tính giá vốn nguyên vật liệu</div>
+                  <div class="kpi-value" id="repTotalCOGS">0 ₫</div>
+                  <div class="kpi-subtext">Căn cứ theo BOM sản xuất đã xuất</div>
+                </div>
+                <div class="kpi-card">
+                  <div class="kpi-title">Lợi nhuận gộp sơ bộ</div>
+                  <div class="kpi-value" id="repGrossProfit">0 ₫</div>
+                  <div class="kpi-subtext">Doanh thu - Giá vốn NVL</div>
+                </div>
+              </div>
+
+              <div class="table-responsive">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Mã đơn</th>
+                      <th>Ngày</th>
+                      <th>Mẫu giày / SKU</th>
+                      <th>Số lượng (đôi)</th>
+                      <th>Doanh thu (₫)</th>
+                      <th>Giá vốn ước tính (₫)</th>
+                      <th>Lợi nhuận gộp (₫)</th>
+                    </tr>
+                  </thead>
+                  <tbody id="repFinanceOrdersTableBody">
+                    <tr><td colspan="7" style="text-align: center; color: var(--text-muted);">(đang cập nhật)</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- 8.3 CẢNH BÁO BẤT THƯỜNG TRONG SẢN XUẤT -->
+          <div id="rep-tab-alerts" class="rep-tab-content" style="display: none;">
+            <div class="card">
+              <div class="card-header">
+                <h2>Hệ thống cảnh báo bất thường và hao hụt nguyên vật liệu</h2>
+                <small style="color: var(--info);">Cơ chế: Kiểm tra bằng quy tắc JavaScript tự động, không mô phỏng API ngoài</small>
+              </div>
+
+              <div style="margin-bottom: 20px;">
+                <p style="margin-bottom: 12px; color: var(--text-muted);">
+                  Hệ thống thực hiện đối chiếu tự động giữa <strong>Định mức BOM tiêu chuẩn</strong> với <strong>Lượng nguyên vật liệu xuất kho thực tế</strong>. Các trường hợp hao hụt vượt quá ngưỡng <strong>5%</strong> hoặc nguyên vật liệu chạm ngưỡng tồn an toàn sẽ được gắn cờ báo động ngay lập tức:
+                </p>
+                <div id="anomalyAlertsContainer">
+                  <div style="padding: 16px; color: var(--text-muted); text-align: center;">Chưa có dữ liệu sản xuất để đối chiếu</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== PHÂN HỆ 9: QUẢN LÝ TÀI KHOẢN VÀ PHÂN QUYỀN ==================== -->
+        <section id="sec-account" class="content-section" style="display: none;">
+          <div class="quick-toolbar">
+            <div>
+              <h1>Quản lý tài khoản và Phân quyền</h1>
+              <small>Thông tin người dùng, đổi mật khẩu và xem phân quyền vai trò thao tác</small>
+            </div>
+          </div>
+
+          <div class="alert-box alert-info" style="cursor: default;">
+            <div>ℹ️</div>
+            <div>
+              <strong>Ghi chú kỹ thuật về tính năng bảo mật:</strong>
+              <div>Hệ thống hiện tại hoạt động dưới dạng Single-Page Application (SPA) độc lập bằng HTML/CSS/JavaScript thuần, không có backend hoặc cơ sở dữ liệu xác thực tập trung. Khu vực tài khoản và đổi mật khẩu dưới đây là giao diện mô phỏng hoạt động trong phiên làm việc của trình duyệt.</div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-col">
+              <div class="card">
+                <h2>Thông tin tài khoản hiện tại</h2>
+                <div style="margin-top: 16px;">
+                  <div class="form-group">
+                    <label class="form-label">Tên tài khoản:</label>
+                    <input type="text" class="form-control" id="accUsername" value="admin_xuonggiay" readonly>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Họ và tên người dùng:</label>
+                    <input type="text" class="form-control" id="accFullName" value="Nguyễn Văn Quản Trị">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Vai trò đang đảm nhiệm:</label>
+                    <input type="text" class="form-control" id="accRoleName" value="Chủ xưởng" readonly>
+                  </div>
+                  <button class="btn btn-primary" onclick="saveAccountInfo()">Cập nhật thông tin</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-col">
+              <div class="card">
+                <h2>Đổi mật khẩu (Mô phỏng)</h2>
+                <form onsubmit="handlePasswordChange(event)" style="margin-top: 16px;">
+                  <div class="form-group">
+                    <label class="form-label">Mật khẩu hiện tại:</label>
+                    <input type="password" class="form-control" id="oldPassword" placeholder="Nhập mật khẩu hiện tại" required>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Mật khẩu mới:</label>
+                    <input type="password" class="form-control" id="newPassword" placeholder="Tối thiểu 6 ký tự" minlength="6" required>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Xác nhận mật khẩu mới:</label>
+                    <input type="password" class="form-control" id="confirmPassword" placeholder="Nhập lại mật khẩu mới" minlength="6" required>
+                  </div>
+                  <button type="submit" class="btn btn-warning">Đổi mật khẩu</button>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2>Bảng phân quyền chức năng theo vai trò</h2>
+            <div class="table-responsive" style="margin-top: 16px;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Chức năng hệ thống</th>
+                    <th>Chủ xưởng</th>
+                    <th>Thủ kho</th>
+                    <th>Nhân viên Bán hàng</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Xem Dashboard tổng hợp & Báo cáo tài chính</td>
+                    <td><span class="badge badge-success">Toàn quyền</span></td>
+                    <td><span class="badge badge-secondary">Bị hạn chế</span></td>
+                    <td><span class="badge badge-secondary">Bị hạn chế</span></td>
+                  </tr>
+                  <tr>
+                    <td>Quản lý BOM & Lập lệnh sản xuất</td>
+                    <td><span class="badge badge-success">Toàn quyền</span></td>
+                    <td><span class="badge badge-primary">Chỉ xem</span></td>
+                    <td><span class="badge badge-secondary">Không có quyền</span></td>
+                  </tr>
+                  <tr>
+                    <td>Nhập kho / Xuất kho nguyên vật liệu</td>
+                    <td><span class="badge badge-success">Toàn quyền</span></td>
+                    <td><span class="badge badge-success">Toàn quyền</span></td>
+                    <td><span class="badge badge-secondary">Không có quyền</span></td>
+                  </tr>
+                  <tr>
+                    <td>Lập đơn bán hàng & In hóa đơn</td>
+                    <td><span class="badge badge-success">Toàn quyền</span></td>
+                    <td><span class="badge badge-primary">Chỉ xem</span></td>
+                    <td><span class="badge badge-success">Toàn quyền</span></td>
+                  </tr>
+                  <tr>
+                    <td>Ghi nhận thu chi tiền mặt</td>
+                    <td><span class="badge badge-success">Toàn quyền</span></td>
+                    <td><span class="badge badge-secondary">Không có quyền</span></td>
+                    <td><span class="badge badge-primary">Thu bán lẻ</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <!-- ==================== CÁC DIALOG / MODAL POPUP ==================== -->
+
+  <!-- MODAL: NGUYÊN VẬT LIỆU -->
+  <div class="modal-backdrop" id="materialModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title" id="materialModalTitle">Thêm mới nguyên vật liệu</div>
+        <button class="modal-close" onclick="closeModal('materialModal')">&times;</button>
+      </div>
+      <form onsubmit="handleSaveMaterial(event)">
+        <div class="modal-body">
+          <input type="hidden" id="matId">
+          <div class="form-row">
+            <div class="form-col">
+              <label class="form-label">Mã nguyên vật liệu *</label>
+              <input type="text" id="matCode" class="form-control" required placeholder="VD: NVL-DA-01">
+            </div>
+            <div class="form-col">
+              <label class="form-label">Tên nguyên vật liệu *</label>
+              <input type="text" id="matName" class="form-control" required placeholder="VD: Da bò thuộc đen 1.4mm">
+            </div>
+          </div>
+          <div class="form-row" style="margin-top: 14px;">
+            <div class="form-col">
+              <label class="form-label">Đơn vị tính *</label>
+              <input type="text" id="matUnit" class="form-control" required placeholder="VD: Mét vuông (m²), Cuộn, Kg, Đôi">
+            </div>
+            <div class="form-col">
+              <label class="form-label">Giá nhập ước tính (₫) *</label>
+              <input type="number" id="matPrice" class="form-control" required min="0" placeholder="VD: 350000">
+            </div>
+          </div>
+          <div class="form-row" style="margin-top: 14px;">
+            <div class="form-col">
+              <label class="form-label">Tồn kho ban đầu</label>
+              <input type="number" id="matStock" class="form-control" min="0" value="0">
+            </div>
+            <div class="form-col">
+              <label class="form-label">Ngưỡng tồn tối thiểu cảnh báo *</label>
+              <input type="number" id="matMinStock" class="form-control" required min="0" value="10">
+            </div>
+          </div>
+          <div class="form-group" style="margin-top: 14px;">
+            <label class="form-label">Trạng thái:</label>
+            <select id="matDisabled" class="form-select">
+              <option value="false">Đang kích hoạt sử dụng</option>
+              <option value="true">Vô hiệu hóa (ngừng sử dụng)</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeModal('materialModal')">Hủy bỏ</button>
+          <button type="submit" class="btn btn-primary">Lưu nguyên vật liệu</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: SẢN PHẨM / SKU -->
+  <div class="modal-backdrop" id="productModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title" id="productModalTitle">Thêm mẫu giày / SKU mới</div>
+        <button class="modal-close" onclick="closeModal('productModal')">&times;</button>
+      </div>
+      <form onsubmit="handleSaveProduct(event)">
+        <div class="modal-body">
+          <input type="hidden" id="prodId">
+          <div class="form-row">
+            <div class="form-col">
+              <label class="form-label">Mã sản phẩm / SKU *</label>
+              <input type="text" id="prodCode" class="form-control" required placeholder="VD: GIAY-OXFORD-41-DEN">
+            </div>
+            <div class="form-col">
+              <label class="form-label">Tên mẫu giày *</label>
+              <input type="text" id="prodName" class="form-control" required placeholder="VD: Giày Oxford Da Nam">
+            </div>
+          </div>
+          <div class="form-row" style="margin-top: 14px;">
+            <div class="form-col">
+              <label class="form-label">Size giày *</label>
+              <input type="text" id="prodSize" class="form-control" required placeholder="VD: 39, 40, 41, 42">
+            </div>
+            <div class="form-col">
+              <label class="form-label">Màu sắc *</label>
+              <input type="text" id="prodColor" class="form-control" required placeholder="VD: Đen, Nâu bò, Trắng">
+            </div>
+          </div>
+          <div class="form-row" style="margin-top: 14px;">
+            <div class="form-col">
+              <label class="form-label">Giá bán niêm yết (₫) *</label>
+              <input type="number" id="prodPrice" class="form-control" required min="0" placeholder="VD: 850000">
+            </div>
+            <div class="form-col">
+              <label class="form-label">Tồn kho thành phẩm ban đầu</label>
+              <input type="number" id="prodStock" class="form-control" min="0" value="0">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeModal('productModal')">Hủy bỏ</button>
+          <button type="submit" class="btn btn-primary">Lưu sản phẩm</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: ĐỐI TÁC (NCC / KHÁCH HÀNG) -->
+  <div class="modal-backdrop" id="partnerModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title" id="partnerModalTitle">Thêm đối tác kinh doanh</div>
+        <button class="modal-close" onclick="closeModal('partnerModal')">&times;</button>
+      </div>
+      <form onsubmit="handleSavePartner(event)">
+        <div class="modal-body">
+          <input type="hidden" id="partnerId">
+          <div class="form-group">
+            <label class="form-label">Loại đối tác *</label>
+            <select id="partnerType" class="form-select" required>
+              <option value="supplier">Nhà cung cấp (Bán nguyên vật liệu cho xưởng)</option>
+              <option value="customer">Khách hàng (Đại lý, người mua sỉ/lẻ)</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <div class="form-col">
+              <label class="form-label">Tên đối tác *</label>
+              <input type="text" id="partnerName" class="form-control" required placeholder="VD: Công ty Thuộc da Sài Gòn">
+            </div>
+            <div class="form-col">
+              <label class="form-label">Số điện thoại *</label>
+              <input type="text" id="partnerPhone" class="form-control" required placeholder="VD: 0912345678">
+            </div>
+          </div>
+          <div class="form-group" style="margin-top: 14px;">
+            <label class="form-label">Địa chỉ</label>
+            <input type="text" id="partnerAddress" class="form-control" placeholder="VD: Quận 12, TP. Hồ Chí Minh">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Công nợ ban đầu (₫)</label>
+            <input type="number" id="partnerDebt" class="form-control" value="0">
+            <small>Dương (+): Đối tác đang nợ xưởng. Âm (-): Xưởng đang nợ đối tác.</small>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeModal('partnerModal')">Hủy bỏ</button>
+          <button type="submit" class="btn btn-primary">Lưu thông tin</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: THIẾT LẬP BOM -->
+  <div class="modal-backdrop" id="bomModal">
+    <div class="modal-dialog" style="max-width: 800px;">
+      <div class="modal-header">
+        <div class="modal-title" id="bomModalTitle">Khai báo cấu trúc định mức nguyên vật liệu (BOM)</div>
+        <button class="modal-close" onclick="closeModal('bomModal')">&times;</button>
+      </div>
+      <form onsubmit="handleSaveBom(event)">
+        <div class="modal-body">
+          <input type="hidden" id="bomId">
+          <div class="form-row">
+            <div class="form-col">
+              <label class="form-label">Sản phẩm áp dụng *</label>
+              <select id="bomProductSelect" class="form-select" required></select>
+            </div>
+            <div class="form-col">
+              <label class="form-label">Phiên bản BOM</label>
+              <input type="text" id="bomVersion" class="form-control" value="v1.0" required>
+            </div>
+          </div>
+
+          <div style="margin-top: 20px; border-top: 1px solid var(--border); padding-top: 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+              <label class="form-label" style="margin-bottom: 0;">Danh sách vật tư cho 1 đôi giày hoàn chỉnh:</label>
+              <button type="button" class="btn btn-outline btn-sm" onclick="addBomItemRow()">+ Thêm vật tư</button>
+            </div>
+            <div class="table-responsive">
+              <table id="bomItemsTable">
+                <thead>
+                  <tr>
+                    <th>Nguyên vật liệu</th>
+                    <th>ĐVT</th>
+                    <th>Định mức / 1 đôi</th>
+                    <th>Thao tác</th>
+                  </tr>
+                </thead>
+                <tbody id="bomItemsTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-top: 14px;">
+            <label class="form-label">Trạng thái chốt phiên bản:</label>
+            <select id="bomStatus" class="form-select">
+              <option value="draft">Bản nháp (Được phép chỉnh sửa)</option>
+              <option value="locked">Đã chốt phiên bản (Khóa, bảo toàn lịch sử)</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeModal('bomModal')">Hủy bỏ</button>
+          <button type="submit" class="btn btn-primary">Lưu BOM</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: TẠO LỆNH SẢN XUẤT -->
+  <div class="modal-backdrop" id="prodOrderModal">
+    <div class="modal-dialog" style="max-width: 750px;">
+      <div class="modal-header">
+        <div class="modal-title">Tạo lệnh sản xuất mới</div>
+        <button class="modal-close" onclick="closeModal('prodOrderModal')">&times;</button>
+      </div>
+      <form onsubmit="handleSaveProdOrder(event)">
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-col">
+              <label class="form-label">Mã lệnh sản xuất *</label>
+              <input type="text" id="poCode" class="form-control" required readonly>
+            </div>
+            <div class="form-col">
+              <label class="form-label">Ngày bắt đầu *</label>
+              <input type="date" id="poStartDate" class="form-control" required>
+            </div>
+          </div>
+          <div class="form-row" style="margin-top: 14px;">
+            <div class="form-col">
+              <label class="form-label">Chọn sản phẩm may *</label>
+              <select id="poProductSelect" class="form-select" required onchange="checkPoMaterialAvailability()"></select>
+            </div>
+            <div class="form-col">
+              <label class="form-label">Số lượng sản xuất (đôi) *</label>
+              <input type="number" id="poQty" class="form-control" value="20" min="1" required oninput="checkPoMaterialAvailability()">
+            </div>
+          </div>
+
+          <div style="margin-top: 20px; border-top: 1px solid var(--border); padding-top: 16px;">
+            <div style="font-weight: 700; margin-bottom: 8px;">Kiểm tra nhu cầu nguyên vật liệu theo định mức (BOM):</div>
+            <div id="poMaterialCheckContainer">
+              <div style="color: var(--text-muted);">(Chọn sản phẩm để kiểm tra nhu cầu vật tư)</div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeModal('prodOrderModal')">Hủy bỏ</button>
+          <button type="submit" class="btn btn-primary" id="poSubmitBtn">Xác nhận tạo lệnh</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: PHIẾU NHẬP KHO NGUYÊN LIỆU -->
+  <div class="modal-backdrop" id="stockInModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title">Tạo phiếu nhập nguyên vật liệu</div>
+        <button class="modal-close" onclick="closeModal('stockInModal')">&times;</button>
+      </div>
+      <form onsubmit="handleSaveStockIn(event)">
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-col">
+              <label class="form-label">Mã phiếu nhập</label>
+              <input type="text" id="siCode" class="form-control" readonly>
+            </div>
+            <div class="form-col">
+              <label class="form-label">Ngày nhập *</label>
+              <input type="date" id="siDate" class="form-control" required>
+            </div>
+          </div>
+          <div class="form-group" style="margin-top: 14px;">
+            <label class="form-label">Nhà cung cấp *</label>
+            <select id="siSupplierSelect" class="form-select" required></select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Nguyên vật liệu nhập *</label>
+            <select id="siMaterialSelect" class="form-select" required onchange="handleStockInMaterialChange()"></select>
+          </div>
+          <div class="form-row">
+            <div class="form-col">
+              <label class="form-label">Số lượng nhập *</label>
+              <input type="number" id="siQty" class="form-control" min="0.01" step="any" required oninput="calcStockInTotal()">
+            </div>
+            <div class="form-col">
+              <label class="form-label">Đơn giá nhập (₫) *</label>
+              <input type="number" id="siPrice" class="form-control" min="0" required oninput="calcStockInTotal()">
+            </div>
+          </div>
+          <div class="form-group" style="margin-top: 14px;">
+            <label class="form-label">Tổng tiền thành tiền:</label>
+            <input type="text" id="siTotalDisplay" class="form-control" readonly value="0 ₫" style="font-weight: 700; color: var(--danger);">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Hình thức thanh toán:</label>
+            <select id="siPayStatus" class="form-select">
+              <option value="paid">Thanh toán ngay bằng quỹ (Tự động ghi Chi)</option>
+              <option value="debt">Ghi nhận công nợ (Chưa thanh toán)</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeModal('stockInModal')">Hủy bỏ</button>
+          <button type="submit" class="btn btn-success">Xác nhận nhập kho & Tăng tồn kho</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: TẠO ĐƠN BÁN HÀNG -->
+  <div class="modal-backdrop" id="salesOrderModal">
+    <div class="modal-dialog" style="max-width: 750px;">
+      <div class="modal-header">
+        <div class="modal-title">Tạo đơn hàng bán giày mới</div>
+        <button class="modal-close" onclick="closeModal('salesOrderModal')">&times;</button>
+      </div>
+      <form onsubmit="handleSaveSalesOrder(event)">
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-col">
+              <label class="form-label">Mã đơn hàng</label>
+              <input type="text" id="soCode" class="form-control" readonly>
+            </div>
+            <div class="form-col">
+              <label class="form-label">Ngày bán *</label>
+              <input type="date" id="soDate" class="form-control" required>
+            </div>
+          </div>
+          <div class="form-group" style="margin-top: 14px;">
+            <label class="form-label">Khách hàng đặt mua *</label>
+            <select id="soCustomerSelect" class="form-select" required></select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Sản phẩm giày / SKU bán *</label>
+            <select id="soProductSelect" class="form-select" required onchange="handleSalesProductChange()"></select>
+            <div id="soStockAvailableInfo" style="margin-top: 6px; font-weight: 600;"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-col">
+              <label class="form-label">Số lượng mua (đôi) *</label>
+              <input type="number" id="soQty" class="form-control" value="1" min="1" required oninput="calcSalesTotal()">
+            </div>
+            <div class="form-col">
+              <label class="form-label">Đơn giá bán (₫) *</label>
+              <input type="number" id="soPrice" class="form-control" min="0" required oninput="calcSalesTotal()">
+            </div>
+          </div>
+          <div class="form-row" style="margin-top: 14px;">
+            <div class="form-col">
+              <label class="form-label">Chiết khấu giảm giá (₫)</label>
+              <input type="number" id="soDiscount" class="form-control" value="0" min="0" oninput="calcSalesTotal()">
+            </div>
+            <div class="form-col">
+              <label class="form-label">Tổng tiền thanh toán (₫)</label>
+              <input type="text" id="soTotalDisplay" class="form-control" readonly style="font-weight: 700; color: var(--success);" value="0 ₫">
+            </div>
+          </div>
+          <div class="form-row" style="margin-top: 14px;">
+            <div class="form-col">
+              <label class="form-label">Số tiền khách đã trả (₫) *</label>
+              <input type="number" id="soPaid" class="form-control" value="0" min="0" required oninput="calcSalesTotal()">
+            </div>
+            <div class="form-col">
+              <label class="form-label">Số tiền còn thiếu (Công nợ)</label>
+              <input type="text" id="soDebtDisplay" class="form-control" readonly value="0 ₫">
+            </div>
+          </div>
+          <div class="form-group" style="margin-top: 14px;">
+            <label class="form-label">Trạng thái giao hàng:</label>
+            <select id="soDeliveryStatus" class="form-select">
+              <option value="Đã giao hàng">Đã giao hàng (Xuất kho ngay)</option>
+              <option value="Chờ giao">Chờ giao</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeModal('salesOrderModal')">Hủy bỏ</button>
+          <button type="submit" class="btn btn-primary" id="soSubmitBtn">Xác nhận bán & Trừ kho</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: HÓA ĐƠN BÁN HÀNG (IN HÓA ĐƠN) -->
+  <div class="modal-backdrop" id="invoiceModal">
+    <div class="modal-dialog" style="max-width: 650px;">
+      <div class="modal-header no-print">
+        <div class="modal-title">Hóa đơn bán hàng chi tiết</div>
+        <button class="modal-close" onclick="closeModal('invoiceModal')">&times;</button>
+      </div>
+      <div class="modal-body" id="printInvoiceArea">
+        <div style="text-align: center; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 12px;">
+          <h2 style="font-size: 22px; text-transform: uppercase;">XƯỞNG SẢN XUẤT GIÀY THÀNH PHÁT</h2>
+          <div>Địa chỉ: Cụm Công Nghiệp Sản Xuất Giày Da</div>
+          <div>Hotline: 0988.888.999 - Chuyên sản xuất & phân phối giày sỉ/lẻ</div>
+          <h1 style="font-size: 20px; margin-top: 10px;">HÓA ĐƠN BÁN HÀNG</h1>
+          <div id="invCodeDate" style="font-weight: 600;"></div>
+        </div>
+
+        <div style="margin-bottom: 16px;">
+          <div><strong>Khách hàng:</strong> <span id="invCustomerName"></span></div>
+          <div><strong>Số điện thoại:</strong> <span id="invCustomerPhone"></span></div>
+          <div><strong>Địa chỉ:</strong> <span id="invCustomerAddress"></span></div>
+        </div>
+
+        <div class="table-responsive">
+          <table style="border: 1px solid #000; width: 100%;">
+            <thead>
+              <tr style="background: #e2e8f0;">
+                <th style="border: 1px solid #000;">STT</th>
+                <th style="border: 1px solid #000;">Mặt hàng / Mẫu giày</th>
+                <th style="border: 1px solid #000;">SL</th>
+                <th style="border: 1px solid #000;">Đơn giá (₫)</th>
+                <th style="border: 1px solid #000;">Thành tiền (₫)</th>
+              </tr>
+            </thead>
+            <tbody id="invItemsBody"></tbody>
+          </table>
+        </div>
+
+        <div style="margin-top: 16px; text-align: right; line-height: 1.8;">
+          <div>Tạm tính: <strong id="invSubtotal">0 ₫</strong></div>
+          <div>Chiết khấu: <strong id="invDiscount">0 ₫</strong></div>
+          <div>Tổng thanh toán: <strong id="invTotal" style="font-size: 18px; color: var(--danger);">0 ₫</strong></div>
+          <div>Đã thanh toán: <strong id="invPaid">0 ₫</strong></div>
+          <div>Còn thiếu: <strong id="invRemaining">0 ₫</strong></div>
+        </div>
+
+        <div style="margin-top: 30px; display: flex; justify-content: space-between; text-align: center;">
+          <div>
+            <strong>Người mua hàng</strong><br>
+            <small>(Ký và ghi rõ họ tên)</small>
+          </div>
+          <div>
+            <strong>Đại diện xưởng giày</strong><br>
+            <small>(Ký, đóng dấu)</small>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer no-print">
+        <button type="button" class="btn btn-outline" onclick="closeModal('invoiceModal')">Đóng</button>
+        <button type="button" class="btn btn-primary" onclick="window.print()">🖨️ In hóa đơn (Trình duyệt)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: GHI NHẬN THU CHI -->
+  <div class="modal-backdrop" id="cashflowModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title">Ghi nhận khoản thu / chi</div>
+        <button class="modal-close" onclick="closeModal('cashflowModal')">&times;</button>
+      </div>
+      <form onsubmit="handleSaveCashflow(event)">
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-col">
+              <label class="form-label">Loại giao dịch *</label>
+              <select id="cfType" class="form-select" required>
+                <option value="Thu">Khoản THU (+ Tiền vào)</option>
+                <option value="Chi">Khoản CHI (- Tiền ra)</option>
+              </select>
+            </div>
+            <div class="form-col">
+              <label class="form-label">Ngày giao dịch *</label>
+              <input type="date" id="cfDate" class="form-control" required>
+            </div>
+          </div>
+          <div class="form-group" style="margin-top: 14px;">
+            <label class="form-label">Số tiền (₫) *</label>
+            <input type="number" id="cfAmount" class="form-control" min="1" required placeholder="VD: 5000000">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Nội dung thu chi chi tiết *</label>
+            <input type="text" id="cfDesc" class="form-control" required placeholder="VD: Khách trả nợ tiền giày, Mua keo dán phụ kiện...">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Thông tin liên quan (Đối tác / Số chứng từ):</label>
+            <input type="text" id="cfRef" class="form-control" placeholder="VD: Anh Minh - Cửa hàng Q1">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeModal('cashflowModal')">Hủy bỏ</button>
+          <button type="submit" class="btn btn-primary">Lưu giao dịch</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- ==================== JAVASCRIPT HỆ THỐNG ==================== -->
+  <script>
+    /* ============================================================
+       DỮ LIỆU KHỞI TẠO & LƯU TRỮ LOCALSTORAGE
+       ============================================================ */
+    const STORAGE_KEY = 'XUONG_GIAY_THANH_PHAT_DATA_V2';
+
+    // Cấu trúc dữ liệu chuẩn
+    let appData = {
+      materials: [],
+      products: [],
+      partners: [],
+      boms: [],
+      productionOrders: [],
+      warehouseHistory: [],
+      salesOrders: [],
+      cashflows: [],
+      currentRole: 'owner', // 'owner', 'warehouse', 'sales'
+      userAccount: {
+        username: 'admin_xuonggiay',
+        fullname: 'Nguyễn Văn Quản Trị',
+        password: 'password123'
+      }
+    };
+
+    // Hàm lưu vào localStorage
+    function saveData() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+      } catch (e) {
+        console.error("Lỗi khi lưu dữ liệu vào localStorage:", e);
+      }
+      // Mỗi khi dữ liệu thay đổi, cập nhật cảnh báo & số liệu
+      updateAllBadgesAndAlerts();
+    }
+
+    // Hàm đọc từ localStorage
+    function loadData() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        try {
+          appData = JSON.parse(raw);
+        } catch (e) {
+          console.error("Không thể phân tích dữ liệu localStorage:", e);
+        }
+      }
+    }
+
+    // Nạp dữ liệu mẫu xưởng giày thực tế để kiểm thử đầy đủ các phân hệ
+    function loadSampleData() {
+      if (!confirm("Nạp dữ liệu mẫu của xưởng giày? Thao tác này sẽ thay thế toàn bộ dữ liệu hiện tại trong trình duyệt.")) return;
+
+      const now = new Date();
+      const today = now.toISOString().split('T')[0];
+      // Tạo các ngày trong quá khứ để dữ liệu đa dạng theo thời gian
+      function daysAgo(n) {
+        const d = new Date(now);
+        d.setDate(d.getDate() - n);
+        return d.toISOString().split('T')[0];
+      }
+
+      appData = {
+        materials: [
+          { id: 'M1', code: 'NVL-DA-01', name: 'Da bò hạt cao cấp (Đen)', unit: 'm²', price: 320000, stock: 38, minStock: 20, disabled: false },
+          { id: 'M2', code: 'NVL-DA-02', name: 'Da bò sáp (Nâu)', unit: 'm²', price: 350000, stock: 6, minStock: 15, disabled: false },
+          { id: 'M3', code: 'NVL-DE-41', name: 'Đế cao su đúc Size 41', unit: 'Đôi', price: 95000, stock: 35, minStock: 30, disabled: false },
+          { id: 'M4', code: 'NVL-KEO-01', name: 'Keo dán nhiệt chuyên dụng', unit: 'Kg', price: 110000, stock: 3, minStock: 10, disabled: false },
+          { id: 'M5', code: 'NVL-CHI-01', name: 'Chỉ may nilon cường lực', unit: 'Cuộn', price: 45000, stock: 22, minStock: 10, disabled: false },
+          { id: 'M6', code: 'NVL-LOT-41', name: 'Lót giày đệm êm Size 41', unit: 'Đôi', price: 25000, stock: 28, minStock: 25, disabled: false },
+          { id: 'M7', code: 'NVL-DE-40', name: 'Đế cao su đúc Size 40', unit: 'Đôi', price: 90000, stock: 40, minStock: 20, disabled: false },
+          { id: 'M8', code: 'NVL-LOT-40', name: 'Lót giày đệm êm Size 40', unit: 'Đôi', price: 23000, stock: 35, minStock: 20, disabled: false }
+        ],
+        products: [
+          { id: 'P1', code: 'SKU-OXF-41-DEN', name: 'Giày Tây Oxford Nam', size: '41', color: 'Đen', price: 890000, stock: 12 },
+          { id: 'P2', code: 'SKU-DER-41-NAU', name: 'Giày Derby Cổ Điển', size: '41', color: 'Nâu bò', price: 920000, stock: 7 },
+          { id: 'P3', code: 'SKU-LOA-40-DEN', name: 'Giày Lười Loafer Công Sở', size: '40', color: 'Đen', price: 850000, stock: 5 }
+        ],
+        partners: [
+          { id: 'PT1', type: 'supplier', name: 'Công ty TNHH Thuộc Da Sài Gòn', phone: '0903112233', address: 'KCN Tân Bình, TP.HCM', debt: -12000000 },
+          { id: 'PT2', type: 'supplier', name: 'Xưởng Khuôn Đế Cao Su Đại Phát', phone: '0918445566', address: 'Quận Bình Tân, TP.HCM', debt: -4500000 },
+          { id: 'PT3', type: 'customer', name: 'Cửa Hàng Giày Da Nam Minh Anh', phone: '0977889900', address: 'Quận 1, TP.HCM', debt: 3500000 },
+          { id: 'PT4', type: 'customer', name: 'Chuỗi Giày Thời Trang Việt', phone: '0933557799', address: 'Cầu Giấy, Hà Nội', debt: 4600000 },
+          { id: 'PT5', type: 'customer', name: 'Shop Online Giày Nam 365', phone: '0966112233', address: 'Thủ Đức, TP.HCM', debt: 0 }
+        ],
+        boms: [
+          {
+            id: 'BOM1',
+            productId: 'P1',
+            version: 'v1.0',
+            status: 'locked',
+            items: [
+              { materialId: 'M1', norm: 0.25 },
+              { materialId: 'M3', norm: 1 },
+              { materialId: 'M4', norm: 0.05 },
+              { materialId: 'M5', norm: 0.1 },
+              { materialId: 'M6', norm: 1 }
+            ]
+          },
+          {
+            id: 'BOM2',
+            productId: 'P2',
+            version: 'v1.0',
+            status: 'locked',
+            items: [
+              { materialId: 'M2', norm: 0.28 },
+              { materialId: 'M3', norm: 1 },
+              { materialId: 'M4', norm: 0.06 },
+              { materialId: 'M5', norm: 0.12 },
+              { materialId: 'M6', norm: 1 }
+            ]
+          },
+          {
+            id: 'BOM3',
+            productId: 'P3',
+            version: 'v1.0',
+            status: 'locked',
+            items: [
+              { materialId: 'M1', norm: 0.2 },
+              { materialId: 'M7', norm: 1 },
+              { materialId: 'M4', norm: 0.04 },
+              { materialId: 'M5', norm: 0.08 },
+              { materialId: 'M8', norm: 1 }
+            ]
+          }
+        ],
+        productionOrders: [
+          {
+            id: 'PO1',
+            code: 'LSX-2026-001',
+            productId: 'P1',
+            qty: 30,
+            startDate: daysAgo(25),
+            status: 'Hoàn thành',
+            bomId: 'BOM1',
+            exportedMaterials: true,
+            actualExported: [
+              { materialId: 'M1', qty: 8.4 },  // BOM: 30*0.25=7.5 → xuất 8.4 → hao hụt 12% > 5%
+              { materialId: 'M3', qty: 30 },
+              { materialId: 'M4', qty: 1.5 },
+              { materialId: 'M5', qty: 3.0 },
+              { materialId: 'M6', qty: 30 }
+            ]
+          },
+          {
+            id: 'PO2',
+            code: 'LSX-2026-002',
+            productId: 'P2',
+            qty: 15,
+            startDate: daysAgo(18),
+            status: 'Hoàn thành',
+            bomId: 'BOM2',
+            exportedMaterials: true,
+            actualExported: [
+              { materialId: 'M2', qty: 4.9 },  // BOM: 15*0.28=4.2 → xuất 4.9 → hao hụt 16.7% > 5%
+              { materialId: 'M3', qty: 15 },
+              { materialId: 'M4', qty: 1.2 },   // BOM: 15*0.06=0.9 → xuất 1.2 → hao hụt 33% > 5%
+              { materialId: 'M5', qty: 1.8 },
+              { materialId: 'M6', qty: 15 }
+            ]
+          },
+          {
+            id: 'PO3',
+            code: 'LSX-2026-003',
+            productId: 'P3',
+            qty: 20,
+            startDate: daysAgo(10),
+            status: 'Hoàn thành',
+            bomId: 'BOM3',
+            exportedMaterials: true,
+            actualExported: [
+              { materialId: 'M1', qty: 4.0 },   // BOM: 20*0.2=4.0 → xuất đúng → OK
+              { materialId: 'M7', qty: 20 },
+              { materialId: 'M4', qty: 0.8 },
+              { materialId: 'M5', qty: 1.6 },
+              { materialId: 'M8', qty: 20 }
+            ]
+          },
+          {
+            id: 'PO4',
+            code: 'LSX-2026-004',
+            productId: 'P1',
+            qty: 25,
+            startDate: daysAgo(3),
+            status: 'Đang sản xuất',
+            bomId: 'BOM1',
+            exportedMaterials: true,
+            actualExported: [
+              { materialId: 'M1', qty: 7.2 },   // BOM: 25*0.25=6.25 → xuất 7.2 → hao hụt 15.2% > 5%
+              { materialId: 'M3', qty: 25 },
+              { materialId: 'M4', qty: 1.4 },    // BOM: 25*0.05=1.25 → xuất 1.4 → hao hụt 12% > 5%
+              { materialId: 'M5', qty: 2.5 },
+              { materialId: 'M6', qty: 25 }
+            ]
+          }
+        ],
+        warehouseHistory: [
+          { id: 'WH01', code: 'PNK-001', date: daysAgo(30), type: 'Nhập', itemName: 'Da bò hạt cao cấp (Đen)', qty: 60, beforeQty: 0, afterQty: 60, note: 'Nhập lô đầu từ NCC Thuộc Da Sài Gòn' },
+          { id: 'WH02', code: 'PNK-002', date: daysAgo(30), type: 'Nhập', itemName: 'Da bò sáp (Nâu)', qty: 20, beforeQty: 0, afterQty: 20, note: 'Nhập lô đầu từ NCC Thuộc Da Sài Gòn' },
+          { id: 'WH03', code: 'PNK-003', date: daysAgo(30), type: 'Nhập', itemName: 'Đế cao su đúc Size 41', qty: 100, beforeQty: 0, afterQty: 100, note: 'Nhập từ Xưởng Đại Phát' },
+          { id: 'WH04', code: 'PNK-004', date: daysAgo(30), type: 'Nhập', itemName: 'Keo dán nhiệt chuyên dụng', qty: 10, beforeQty: 0, afterQty: 10, note: 'Nhập từ NCC' },
+          { id: 'WH05', code: 'PXK-LSX001', date: daysAgo(25), type: 'Xuất', itemName: 'Da bò hạt cao cấp (Đen)', qty: 8.4, beforeQty: 60, afterQty: 51.6, note: 'Xuất cho LSX-2026-001 (Hao hụt bất thường)' },
+          { id: 'WH06', code: 'PXK-LSX002', date: daysAgo(18), type: 'Xuất', itemName: 'Da bò sáp (Nâu)', qty: 4.9, beforeQty: 20, afterQty: 15.1, note: 'Xuất cho LSX-2026-002 (Hao hụt bất thường)' },
+          { id: 'WH07', code: 'PNK-TP-001', date: daysAgo(20), type: 'Nhập', itemName: 'Giày Tây Oxford Nam (41, Đen)', qty: 30, beforeQty: 0, afterQty: 30, note: 'Nhập kho thành phẩm từ LSX-2026-001' },
+          { id: 'WH08', code: 'PNK-TP-002', date: daysAgo(14), type: 'Nhập', itemName: 'Giày Derby Cổ Điển (41, Nâu bò)', qty: 15, beforeQty: 0, afterQty: 15, note: 'Nhập kho thành phẩm từ LSX-2026-002' },
+          { id: 'WH09', code: 'PNK-TP-003', date: daysAgo(7), type: 'Nhập', itemName: 'Giày Lười Loafer Công Sở (40, Đen)', qty: 20, beforeQty: 0, afterQty: 20, note: 'Nhập kho thành phẩm từ LSX-2026-003' },
+          { id: 'WH10', code: 'PXK-BAN-DH001', date: daysAgo(18), type: 'Bán', itemName: 'Giày Tây Oxford Nam (41, Đen)', qty: 10, beforeQty: 30, afterQty: 20, note: 'Bán theo DH-2026-001 cho Minh Anh' },
+          { id: 'WH11', code: 'PXK-BAN-DH002', date: daysAgo(12), type: 'Bán', itemName: 'Giày Derby Cổ Điển (41, Nâu bò)', qty: 8, beforeQty: 15, afterQty: 7, note: 'Bán theo DH-2026-002 cho Thời Trang Việt' },
+          { id: 'WH12', code: 'PXK-BAN-DH003', date: daysAgo(5), type: 'Bán', itemName: 'Giày Lười Loafer Công Sở (40, Đen)', qty: 15, beforeQty: 20, afterQty: 5, note: 'Bán theo DH-2026-003 cho Shop 365' },
+          { id: 'WH13', code: 'PXK-BAN-DH004', date: daysAgo(2), type: 'Bán', itemName: 'Giày Tây Oxford Nam (41, Đen)', qty: 8, beforeQty: 20, afterQty: 12, note: 'Bán theo DH-2026-004 cho Thời Trang Việt' }
+        ],
+        salesOrders: [
+          {
+            id: 'SO1',
+            code: 'DH-2026-001',
+            date: daysAgo(18),
+            customerId: 'PT3',
+            productId: 'P1',
+            qty: 10,
+            price: 850000,
+            discount: 500000,
+            total: 8000000,
+            paid: 5000000,
+            remaining: 3000000,
+            payStatus: 'Thanh toán một phần',
+            deliveryStatus: 'Đã giao hàng'
+          },
+          {
+            id: 'SO2',
+            code: 'DH-2026-002',
+            date: daysAgo(12),
+            customerId: 'PT4',
+            productId: 'P2',
+            qty: 8,
+            price: 900000,
+            discount: 0,
+            total: 7200000,
+            paid: 2600000,
+            remaining: 4600000,
+            payStatus: 'Thanh toán một phần',
+            deliveryStatus: 'Đã giao hàng'
+          },
+          {
+            id: 'SO3',
+            code: 'DH-2026-003',
+            date: daysAgo(5),
+            customerId: 'PT5',
+            productId: 'P3',
+            qty: 15,
+            price: 820000,
+            discount: 300000,
+            total: 12000000,
+            paid: 12000000,
+            remaining: 0,
+            payStatus: 'Đã thanh toán',
+            deliveryStatus: 'Đã giao hàng'
+          },
+          {
+            id: 'SO4',
+            code: 'DH-2026-004',
+            date: daysAgo(2),
+            customerId: 'PT4',
+            productId: 'P1',
+            qty: 8,
+            price: 870000,
+            discount: 0,
+            total: 6960000,
+            paid: 6960000,
+            remaining: 0,
+            payStatus: 'Đã thanh toán',
+            deliveryStatus: 'Đã giao hàng'
+          }
+        ],
+        cashflows: [
+          { id: 'CF01', date: daysAgo(30), type: 'Chi', desc: 'Thanh toán tiền nhập da bò đen (PNK-001)', amount: 19200000, ref: 'NCC Thuộc Da Sài Gòn' },
+          { id: 'CF02', date: daysAgo(30), type: 'Chi', desc: 'Thanh toán tiền nhập da bò sáp nâu (PNK-002)', amount: 7000000, ref: 'NCC Thuộc Da Sài Gòn' },
+          { id: 'CF03', date: daysAgo(30), type: 'Chi', desc: 'Thanh toán nhập đế cao su (PNK-003)', amount: 9500000, ref: 'Xưởng Đại Phát' },
+          { id: 'CF04', date: daysAgo(30), type: 'Chi', desc: 'Thanh toán nhập keo dán nhiệt (PNK-004)', amount: 1100000, ref: 'NCC Vật tư' },
+          { id: 'CF05', date: daysAgo(25), type: 'Chi', desc: 'Chi phí nhân công may lệnh LSX-2026-001', amount: 4500000, ref: 'Tổ may xưởng' },
+          { id: 'CF06', date: daysAgo(18), type: 'Thu', desc: 'Thu tiền cọc đơn hàng DH-2026-001', amount: 5000000, ref: 'Khách hàng Minh Anh' },
+          { id: 'CF07', date: daysAgo(15), type: 'Chi', desc: 'Chi phí nhân công may lệnh LSX-2026-002', amount: 2800000, ref: 'Tổ may xưởng' },
+          { id: 'CF08', date: daysAgo(12), type: 'Thu', desc: 'Thu tiền cọc đơn hàng DH-2026-002', amount: 2600000, ref: 'Chuỗi Thời Trang Việt' },
+          { id: 'CF09', date: daysAgo(10), type: 'Chi', desc: 'Chi phí nhân công may lệnh LSX-2026-003', amount: 3200000, ref: 'Tổ may xưởng' },
+          { id: 'CF10', date: daysAgo(7), type: 'Chi', desc: 'Tiền điện xưởng tháng này', amount: 2500000, ref: 'Hóa đơn EVN' },
+          { id: 'CF11', date: daysAgo(5), type: 'Thu', desc: 'Thu toàn bộ tiền đơn DH-2026-003', amount: 12000000, ref: 'Shop Online 365' },
+          { id: 'CF12', date: daysAgo(3), type: 'Chi', desc: 'Chi phí nhân công may lệnh LSX-2026-004', amount: 3800000, ref: 'Tổ may xưởng' },
+          { id: 'CF13', date: daysAgo(2), type: 'Thu', desc: 'Thu toàn bộ tiền đơn DH-2026-004', amount: 6960000, ref: 'Chuỗi Thời Trang Việt' },
+          { id: 'CF14', date: daysAgo(1), type: 'Chi', desc: 'Mua phụ kiện ô-dê, khóa giày', amount: 800000, ref: 'NCC phụ kiện' }
+        ],
+        currentRole: 'owner',
+        userAccount: {
+          username: 'admin_xuonggiay',
+          fullname: 'Nguyễn Văn Quản Trị',
+          password: 'password123'
+        }
+      };
+
+      saveData();
+      renderAll();
+      showToast("Đã nạp dữ liệu mẫu xưởng giày thành công!", "success");
+    }
+
+    function resetAllData() {
+      if (!confirm("Bạn có chắc chắn muốn xóa toàn bộ dữ liệu trở về trạng thái trống ban đầu không?")) return;
+      localStorage.removeItem(STORAGE_KEY);
+      appData = {
+        materials: [],
+        products: [],
+        partners: [],
+        boms: [],
+        productionOrders: [],
+        warehouseHistory: [],
+        salesOrders: [],
+        cashflows: [],
+        currentRole: 'owner',
+        userAccount: {
+          username: 'admin_xuonggiay',
+          fullname: 'Nguyễn Văn Quản Trị',
+          password: 'password123'
+        }
+      };
+      saveData();
+      renderAll();
+      showToast("Đã dọn dẹp toàn bộ dữ liệu!", "warning");
+    }
+
+    /* ============================================================
+       ĐIỀU HƯỚNG VÀ GIAO DIỆN (ROUTING)
+       ============================================================ */
+    function navigate(sectionId) {
+      if (!requireAccess(sectionId)) return;
+      document.querySelectorAll('.content-section').forEach(sec => sec.style.display = 'none');
+      const target = document.getElementById('sec-' + sectionId);
+      if (target) {
+        target.style.display = 'block';
+      }
+
+      // Đổi active ở menu
+      document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+      const activeLink = Array.from(document.querySelectorAll('.nav-link')).find(l => {
+        const fn = l.getAttribute('onclick') || '';
+        return fn.includes("'" + sectionId + "'");
+      });
+      if (activeLink) activeLink.classList.add('active');
+
+      // Đổi breadcrumb
+      const names = {
+        dashboard: 'Dashboard',
+        categories: 'Quản lý danh mục',
+        bom: 'Quản lý định mức BOM',
+        production: 'Quản lý lệnh sản xuất',
+        warehouse: 'Quản lý kho',
+        sales: 'Quản lý bán hàng',
+        cashflow: 'Quản lý thu chi',
+        reports: 'Báo cáo & Cảnh báo',
+        account: 'Tài khoản & Phân quyền'
+      };
+      document.getElementById('breadcrumbCurrent').innerText = names[sectionId] || sectionId;
+
+      // Đóng sidebar nếu đang mở trên màn hình nhỏ
+      toggleSidebar(false);
+
+      // Render nội dung tương ứng
+      if (sectionId === 'dashboard') renderDashboard();
+      if (sectionId === 'categories') renderCategories();
+      if (sectionId === 'bom') renderBomModule();
+      if (sectionId === 'production') renderProductionOrdersTable();
+      if (sectionId === 'warehouse') renderWarehouseModule();
+      if (sectionId === 'sales') renderSalesOrdersTable();
+      if (sectionId === 'cashflow') renderCashflowModule();
+      if (sectionId === 'reports') renderReportsModule();
+      if (sectionId === 'account') renderAccountModule();
+    }
+
+    function toggleSidebar(open) {
+      const sidebar = document.getElementById('sidebar');
+      const backdrop = document.getElementById('sidebarBackdrop');
+      if (open) {
+        sidebar.classList.add('open');
+        backdrop.classList.add('active');
+      } else {
+        sidebar.classList.remove('open');
+        backdrop.classList.remove('active');
+      }
+    }
+
+    function toggleNotifDropdown() {
+      const dd = document.getElementById('notifDropdown');
+      dd.classList.toggle('active');
+    }
+
+    // Đóng dropdown khi nhấn ra ngoài
+    document.addEventListener('click', function(e) {
+      const notifWrapper = document.querySelector('.notif-wrapper');
+      if (notifWrapper && !notifWrapper.contains(e.target)) {
+        document.getElementById('notifDropdown').classList.remove('active');
+      }
+    });
+
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast-msg ${type}`;
+      toast.innerText = message;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+
+    function formatMoney(num) {
+      if (isNaN(num) || num === null || num === undefined) return '0 ₫';
+      return new Intl.NumberFormat('vi-VN').format(Math.round(num)) + ' ₫';
+    }
+
+    function formatNumber(num) {
+      if (isNaN(num) || num === null || num === undefined) return '0';
+      return new Intl.NumberFormat('vi-VN').format(num);
+    }
+
+    /* ============================================================
+       PHÂN QUYỀN VAI TRÒ (MÔ PHỎNG)
+       ============================================================ */
+    // [SỬA LỖI TC04] Phân quyền truy cập màn hình theo vai trò (theo Bảng 1.4 của báo cáo)
+    const ROLE_ACCESS = {
+      owner: ['dashboard', 'categories', 'bom', 'production', 'warehouse', 'sales', 'cashflow', 'reports', 'account'],
+      warehouse: ['dashboard', 'categories', 'bom', 'production', 'warehouse', 'reports', 'account'],
+      sales: ['dashboard', 'categories', 'sales', 'account']
+    };
+    const ROLE_LABELS = { owner: 'Chủ xưởng', warehouse: 'Thủ kho', sales: 'Bán hàng' };
+
+    function canAccess(sectionId) {
+      const allowed = ROLE_ACCESS[appData.currentRole] || ROLE_ACCESS.owner;
+      return allowed.includes(sectionId);
+    }
+
+    function requireAccess(sectionId) {
+      if (canAccess(sectionId)) return true;
+      alert('Vai trò "' + (ROLE_LABELS[appData.currentRole] || appData.currentRole) + '" không có quyền sử dụng chức năng này.');
+      return false;
+    }
+
+    function applyRolePermissions() {
+      document.querySelectorAll('.nav-link').forEach(link => {
+        const m = (link.getAttribute('onclick') || '').match(/navigate\('([a-z]+)'\)/);
+        if (m) link.style.display = canAccess(m[1]) ? '' : 'none';
+      });
+    }
+
+    function changeUserRole(role) {
+      appData.currentRole = role;
+      saveData();
+      applyRolePermissions();
+      const visible = Array.from(document.querySelectorAll('.content-section')).find(sec => sec.style.display !== 'none');
+      if (visible && !canAccess(visible.id.replace('sec-', ''))) navigate('dashboard');
+      const roleNames = {
+        owner: 'Chủ xưởng',
+        warehouse: 'Thủ kho',
+        sales: 'Bán hàng'
+      };
+      document.getElementById('currentUserNameDisplay').innerText = `${roleNames[role]} (Demo)`;
+      showToast(`Đã chuyển đổi góc nhìn sang vai trò: ${roleNames[role]}`, 'info');
+    }
+
+    /* ============================================================
+       HỆ THỐNG CẢNH BÁO THÔNG MINH BẰNG JAVASCRIPT THUẦN
+       - Kiểm tra nguyên vật liệu dưới ngưỡng tối thiểu
+       - Đối chiếu BOM và xuất xưởng thực tế (hao hụt > 5%)
+       ============================================================ */
+    function getSystemAlerts() {
+      const alerts = [];
+
+      // 1. Cảnh báo tồn kho nguyên vật liệu dưới mức tối thiểu
+      appData.materials.forEach(m => {
+        if (!m.disabled && m.stock <= m.minStock) {
+          alerts.push({
+            type: 'danger',
+            category: 'stock',
+            title: `Cảnh báo cạn kiệt nguyên liệu: ${m.name}`,
+            message: `Tồn kho hiện tại (${m.stock} ${m.unit}) đã chạm hoặc thấp hơn ngưỡng an toàn tối thiểu (${m.minStock} ${m.unit}).`,
+            action: () => navigate('warehouse')
+          });
+        }
+      });
+
+      // 2. Cảnh báo hao hụt nguyên vật liệu trong sản xuất (> 5%)
+      appData.productionOrders.forEach(po => {
+        if (po.actualExported && po.actualExported.length > 0) {
+          const bom = appData.boms.find(b => b.id === po.bomId);
+          if (bom) {
+            po.actualExported.forEach(act => {
+              const bomItem = bom.items.find(i => i.materialId === act.materialId);
+              if (bomItem) {
+                const standardQty = bomItem.norm * po.qty;
+                if (act.qty > standardQty) {
+                  const diff = act.qty - standardQty;
+                  const rate = (diff / standardQty) * 100;
+                  if (rate > 5) { // Vượt quá 5%
+                    const mat = appData.materials.find(m => m.id === act.materialId);
+                    const matName = mat ? mat.name : 'Nguyên liệu';
+                    alerts.push({
+                      type: 'warning',
+                      category: 'production',
+                      title: `Bất thường hao hụt NVL ở lệnh ${po.code}`,
+                      message: `Nguyên liệu "${matName}" xuất thực tế ${act.qty}, vượt mức BOM định mức ${standardQty} (${rate.toFixed(1)}% hao hụt).`,
+                      action: () => navigate('reports')
+                    });
+                  }
+                }
+              }
+            });
+          }
+        }
+      });
+
+      return alerts;
+    }
+
+    function updateAllBadgesAndAlerts() {
+      const alerts = getSystemAlerts();
+      const badge = document.getElementById('headerNotifBadge');
+      badge.innerText = alerts.length;
+      badge.style.display = alerts.length > 0 ? 'inline-block' : 'none';
+
+      // Dropdown chuông thông báo
+      const notifContainer = document.getElementById('notifListContainer');
+      if (alerts.length === 0) {
+        notifContainer.innerHTML = '<div style="padding: 16px; text-align: center; color: var(--text-muted);">(đang cập nhật) - Không có cảnh báo bất thường</div>';
+      } else {
+        notifContainer.innerHTML = alerts.map((a, idx) => `
+          <div class="notif-item" onclick="triggerAlertAction(${idx})">
+            <strong style="color: ${a.type === 'danger' ? 'var(--danger)' : 'var(--warning)'}; display: block;">${a.title}</strong>
+            <small style="color: var(--text-muted); display: block; margin-top: 4px;">${a.message}</small>
+          </div>
+        `).join('');
+      }
+    }
+
+    function triggerAlertAction(idx) {
+      const alerts = getSystemAlerts();
+      if (alerts[idx] && typeof alerts[idx].action === 'function') {
+        document.getElementById('notifDropdown').classList.remove('active');
+        alerts[idx].action();
+      }
+    }
+
+    /* ============================================================
+       PHÂN HỆ 1: DASHBOARD & BIỂU ĐỒ THUẦN (CANVAS)
+       ============================================================ */
+    // Trả về ngày bắt đầu của kỳ (định dạng YYYY-MM-DD): tuần (từ thứ Hai), tháng, quý hiện tại
+    function getPeriodStartDate(period) {
+      const now = new Date();
+      let start;
+      if (period === 'week') {
+        const diff = (now.getDay() + 6) % 7; // số ngày kể từ thứ Hai
+        start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - diff);
+      } else if (period === 'quarter') {
+        start = new Date(now.getFullYear(), Math.floor(now.getMonth() / 3) * 3, 1);
+      } else {
+        start = new Date(now.getFullYear(), now.getMonth(), 1);
+      }
+      const pad = n => String(n).padStart(2, '0');
+      return start.getFullYear() + '-' + pad(start.getMonth() + 1) + '-' + pad(start.getDate());
+    }
+
+    function renderDashboard() {
+      // 1. Tính toán Doanh thu
+      const period = document.getElementById('dashboardPeriodFilter').value;
+      let revenue = 0;
+      // [SỬA LỖI TC34] Chỉ cộng các đơn có ngày bán nằm trong kỳ đã chọn
+      const periodStart = getPeriodStartDate(period);
+      appData.salesOrders.forEach(so => {
+        if (so.date && so.date >= periodStart) revenue += Number(so.total) || 0;
+      });
+
+      document.getElementById('kpiRevenue').innerText = formatMoney(revenue);
+
+      // 2. Tính giá trị tồn kho hiện tại (NVL + Thành phẩm)
+      let stockValue = 0;
+      appData.materials.forEach(m => {
+        if (!m.disabled) stockValue += (m.stock || 0) * (m.price || 0);
+      });
+      appData.products.forEach(p => {
+        stockValue += (p.stock || 0) * (p.price || 0);
+      });
+      document.getElementById('kpiStockValue').innerText = formatMoney(stockValue);
+
+      // 3. Số lệnh sản xuất đang chạy
+      const runningCount = appData.productionOrders.filter(po => po.status === 'Đang sản xuất').length;
+      document.getElementById('kpiRunningOrders').innerText = runningCount;
+
+      // 4. Số nguyên liệu sắp cạn kiệt
+      const lowMatCount = appData.materials.filter(m => !m.disabled && m.stock <= m.minStock).length;
+      document.getElementById('kpiLowMaterials').innerText = lowMatCount;
+
+      // 5. Cảnh báo tại Dashboard
+      const alerts = getSystemAlerts();
+      const alertContainer = document.getElementById('dashboardAlertsContainer');
+      if (alerts.length === 0) {
+        alertContainer.innerHTML = '<div style="padding: 16px; color: var(--text-muted); text-align: center;">(đang cập nhật) - Toàn bộ nguyên vật liệu và tiến trình sản xuất đang ở mức ổn định.</div>';
+      } else {
+        alertContainer.innerHTML = alerts.map((a, idx) => `
+          <div class="alert-box alert-${a.type}" onclick="triggerAlertAction(${idx})">
+            <span style="font-size: 20px;">${a.type === 'danger' ? '🚨' : '⚠️'}</span>
+            <div>
+              <strong>${a.title}</strong>
+              <div>${a.message}</div>
+              <small style="text-decoration: underline; margin-top: 4px; display: inline-block;">Nhấp để chuyển đến phân hệ xử lý →</small>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      // 6. Vẽ biểu đồ thuần bằng Canvas
+      drawSalesChart();
+      drawMaterialChart();
+    }
+
+    // Vẽ biểu đồ doanh số theo sản phẩm
+    function drawSalesChart() {
+      const canvas = document.getElementById('salesChartCanvas');
+      const ctx = canvas.getContext('2d');
+      const emptyNote = document.getElementById('salesChartEmptyNote');
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      if (appData.salesOrders.length === 0) {
+        emptyNote.style.display = 'block';
+        return;
+      }
+      emptyNote.style.display = 'none';
+
+      // Tính tổng tiền theo từng SKU
+      const productSales = {};
+      appData.salesOrders.forEach(so => {
+        const prod = appData.products.find(p => p.id === so.productId);
+        const name = prod ? prod.name : 'Giày khác';
+        productSales[name] = (productSales[name] || 0) + (Number(so.total) || 0);
+      });
+
+      const labels = Object.keys(productSales);
+      const values = Object.values(productSales);
+      const maxVal = Math.max(...values, 1);
+
+      const paddingLeft = 60;
+      const paddingBottom = 40;
+      const chartWidth = canvas.width - paddingLeft - 20;
+      const chartHeight = canvas.height - paddingBottom - 20;
+
+      const barWidth = Math.min(60, chartWidth / labels.length - 20);
+
+      labels.forEach((label, i) => {
+        const val = values[i];
+        const barHeight = (val / maxVal) * chartHeight;
+        const x = paddingLeft + i * (barWidth + 25) + 10;
+        const y = canvas.height - paddingBottom - barHeight;
+
+        // Vẽ cột
+        ctx.fillStyle = '#04522B';
+        ctx.fillRect(x, y, barWidth, barHeight);
+
+        // Vẽ giá trị
+        ctx.fillStyle = '#0f172a';
+        ctx.font = '16px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(Math.round(val / 1000000) + 'tr', x + barWidth / 2, y - 6);
+
+        // Vẽ tên ngắn gọn
+        ctx.fillStyle = '#475569';
+        const shortName = label.length > 10 ? label.substring(0, 8) + '...' : label;
+        ctx.fillText(shortName, x + barWidth / 2, canvas.height - 10);
+      });
+    }
+
+    // Vẽ biểu đồ phân bổ tồn kho nguyên vật liệu
+    function drawMaterialChart() {
+      const canvas = document.getElementById('materialChartCanvas');
+      const ctx = canvas.getContext('2d');
+      const emptyNote = document.getElementById('materialChartEmptyNote');
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const activeMaterials = appData.materials.filter(m => !m.disabled && m.stock > 0);
+      if (activeMaterials.length === 0) {
+        emptyNote.style.display = 'block';
+        return;
+      }
+      emptyNote.style.display = 'none';
+
+      const totalStock = activeMaterials.reduce((sum, m) => sum + m.stock, 0);
+      const colors = ['#04522B', '#C5A059', '#0B733E', '#ECC880', '#9D7731', '#143D2E'];
+
+      const centerX = canvas.width / 3;
+      const centerY = canvas.height / 2;
+      const radius = 75;
+
+      let startAngle = 0;
+      activeMaterials.forEach((m, idx) => {
+        const sliceAngle = (m.stock / totalStock) * 2 * Math.PI;
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY);
+        ctx.arc(centerX, centerY, radius, startAngle, startAngle + sliceAngle);
+        ctx.closePath();
+        ctx.fillStyle = colors[idx % colors.length];
+        ctx.fill();
+        startAngle += sliceAngle;
+
+        // Chú thích legend bên phải
+        const legendX = canvas.width * 0.62;
+        const legendY = 30 + idx * 28;
+
+        ctx.fillStyle = colors[idx % colors.length];
+        ctx.fillRect(legendX, legendY, 14, 14);
+
+        ctx.fillStyle = '#0f172a';
+        ctx.font = '16px sans-serif';
+        ctx.textAlign = 'left';
+        const percent = ((m.stock / totalStock) * 100).toFixed(0);
+        const nameShort = m.name.length > 12 ? m.name.substring(0, 10) + '..' : m.name;
+        ctx.fillText(`${nameShort} (${percent}%)`, legendX + 22, legendY + 12);
+      });
+    }
+
+    /* ============================================================
+       PHÂN HỆ 2: QUẢN LÝ DANH MỤC
+       ============================================================ */
+    function switchCategoryTab(tabKey) {
+      document.querySelectorAll('.cat-tab-content').forEach(c => c.style.display = 'none');
+      document.getElementById('cat-tab-' + tabKey).style.display = 'block';
+
+      // Chuyển nút active
+      const tabBtns = document.querySelectorAll('#sec-categories .tab-btn');
+      tabBtns.forEach(btn => btn.classList.remove('active'));
+      const activeBtn = Array.from(tabBtns).find(b => b.getAttribute('onclick').includes("'" + tabKey + "'"));
+      if (activeBtn) activeBtn.classList.add('active');
+
+      if (tabKey === 'materials') renderMaterialsTable();
+      if (tabKey === 'products') renderProductsTable();
+      if (tabKey === 'partners') renderPartnersTable();
+    }
+
+    function renderCategories() {
+      renderMaterialsTable();
+      renderProductsTable();
+      renderPartnersTable();
+    }
+
+    // 2.1 Bảng Nguyên vật liệu
+    function renderMaterialsTable() {
+      const search = (document.getElementById('searchMaterialInput').value || '').toLowerCase().trim();
+      const statusFilter = document.getElementById('filterMaterialStatus').value;
+      const tbody = document.getElementById('materialsTableBody');
+
+      let list = appData.materials.filter(m => {
+        const matchesSearch = m.code.toLowerCase().includes(search) || m.name.toLowerCase().includes(search);
+        let matchesStatus = true;
+        if (statusFilter === 'active') matchesStatus = !m.disabled;
+        if (statusFilter === 'disabled') matchesStatus = m.disabled;
+        if (statusFilter === 'low') matchesStatus = !m.disabled && m.stock <= m.minStock;
+        return matchesSearch && matchesStatus;
+      });
+
+      if (list.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--text-muted);">(đang cập nhật) - Chưa có dữ liệu nguyên vật liệu phù hợp</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = list.map(m => {
+        const isLow = !m.disabled && m.stock <= m.minStock;
+        return `
+          <tr style="${isLow ? 'background-color: #fef2f2;' : ''}">
+            <td><strong>${m.code}</strong></td>
+            <td>${m.name}</td>
+            <td>${m.unit}</td>
+            <td>${formatMoney(m.price)}</td>
+            <td style="font-weight: 700; color: ${isLow ? 'var(--danger)' : 'var(--text-main)'};">
+              ${m.stock} ${isLow ? '⚠️' : ''}
+            </td>
+            <td>${m.minStock}</td>
+            <td>
+              ${m.disabled 
+                ? '<span class="badge badge-secondary">Đã vô hiệu</span>' 
+                : (isLow ? '<span class="badge badge-danger">Sắp hết hàng</span>' : '<span class="badge badge-success">Đang dùng</span>')}
+            </td>
+            <td>
+              <div style="display: flex; gap: 6px;">
+                <button class="btn btn-outline btn-sm" onclick="editMaterial('${m.id}')">Sửa</button>
+                <button class="btn btn-outline btn-sm" style="color: ${m.disabled ? 'var(--success)' : 'var(--danger)'};" onclick="toggleDisableMaterial('${m.id}')">
+                  ${m.disabled ? 'Kích hoạt' : 'Vô hiệu'}
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function openMaterialModal(mat = null) {
+      document.getElementById('matId').value = mat ? mat.id : '';
+      document.getElementById('matCode').value = mat ? mat.code : 'NVL-' + Math.floor(100 + Math.random() * 900);
+      document.getElementById('matName').value = mat ? mat.name : '';
+      document.getElementById('matUnit').value = mat ? mat.unit : 'm²';
+      document.getElementById('matPrice').value = mat ? mat.price : '';
+      document.getElementById('matStock').value = mat ? mat.stock : 0;
+      document.getElementById('matMinStock').value = mat ? mat.minStock : 10;
+      document.getElementById('matDisabled').value = mat ? String(mat.disabled) : 'false';
+
+      document.getElementById('materialModalTitle').innerText = mat ? 'Cập nhật nguyên vật liệu' : 'Thêm mới nguyên vật liệu';
+      openModal('materialModal');
+    }
+
+    function editMaterial(id) {
+      const mat = appData.materials.find(m => m.id === id);
+      if (mat) openMaterialModal(mat);
+    }
+
+    function toggleDisableMaterial(id) {
+      const mat = appData.materials.find(m => m.id === id);
+      if (mat) {
+        mat.disabled = !mat.disabled;
+        saveData();
+        renderMaterialsTable();
+        showToast(`Đã ${mat.disabled ? 'vô hiệu hóa' : 'kích hoạt'} nguyên liệu: ${mat.name}`, 'info');
+      }
+    }
+
+    function handleSaveMaterial(e) {
+      e.preventDefault();
+      const id = document.getElementById('matId').value;
+      const code = document.getElementById('matCode').value.trim();
+      const name = document.getElementById('matName').value.trim();
+      const unit = document.getElementById('matUnit').value.trim();
+      const price = Number(document.getElementById('matPrice').value) || 0;
+      const stock = Number(document.getElementById('matStock').value) || 0;
+      const minStock = Number(document.getElementById('matMinStock').value) || 0;
+      const disabled = document.getElementById('matDisabled').value === 'true';
+
+      // [SỬA LỖI TC07] Không cho trùng mã nguyên liệu (không phân biệt hoa thường)
+      const duplicated = appData.materials.some(m => m.id !== id && String(m.code).trim().toLowerCase() === code.toLowerCase());
+      if (duplicated) {
+        alert('Mã nguyên liệu "' + code + '" đã tồn tại. Vui lòng nhập mã khác.');
+        return;
+      }
+
+      if (id) {
+        // Sửa
+        const mat = appData.materials.find(m => m.id === id);
+        if (mat) {
+          mat.code = code;
+          mat.name = name;
+          mat.unit = unit;
+          mat.price = price;
+          mat.stock = stock;
+          mat.minStock = minStock;
+          mat.disabled = disabled;
+        }
+      } else {
+        // Thêm mới
+        appData.materials.push({
+          id: 'M_' + Date.now(),
+          code, name, unit, price, stock, minStock, disabled
+        });
+      }
+
+      saveData();
+      closeModal('materialModal');
+      renderMaterialsTable();
+      showToast('Đã lưu thông tin nguyên vật liệu thành công!', 'success');
+    }
+
+    // 2.2 Bảng Sản phẩm / SKU
+    function renderProductsTable() {
+      const search = (document.getElementById('searchProductInput').value || '').toLowerCase().trim();
+      const tbody = document.getElementById('productsTableBody');
+
+      const list = appData.products.filter(p => 
+        p.code.toLowerCase().includes(search) || 
+        p.name.toLowerCase().includes(search) ||
+        p.size.toLowerCase().includes(search) ||
+        p.color.toLowerCase().includes(search)
+      );
+
+      if (list.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted);">(đang cập nhật) - Chưa có dữ liệu sản phẩm</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = list.map(p => `
+        <tr>
+          <td><strong>${p.code}</strong></td>
+          <td>${p.name}</td>
+          <td><span class="badge badge-secondary">${p.size}</span></td>
+          <td>${p.color}</td>
+          <td>${formatMoney(p.price)}</td>
+          <td style="font-weight: 700; color: ${p.stock > 0 ? 'var(--success)' : 'var(--danger)'};">
+            ${p.stock} đôi
+          </td>
+          <td>
+            <button class="btn btn-outline btn-sm" onclick="editProduct('${p.id}')">Sửa</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function openProductModal(prod = null) {
+      document.getElementById('prodId').value = prod ? prod.id : '';
+      document.getElementById('prodCode').value = prod ? prod.code : 'SKU-GIAY-' + Math.floor(10 + Math.random() * 90);
+      document.getElementById('prodName').value = prod ? prod.name : '';
+      document.getElementById('prodSize').value = prod ? prod.size : '41';
+      document.getElementById('prodColor').value = prod ? prod.color : 'Đen';
+      document.getElementById('prodPrice').value = prod ? prod.price : '';
+      document.getElementById('prodStock').value = prod ? prod.stock : 0;
+
+      document.getElementById('productModalTitle').innerText = prod ? 'Cập nhật mẫu giày' : 'Thêm mới mẫu giày / SKU';
+      openModal('productModal');
+    }
+
+    function editProduct(id) {
+      const p = appData.products.find(item => item.id === id);
+      if (p) openProductModal(p);
+    }
+
+    function handleSaveProduct(e) {
+      e.preventDefault();
+      const id = document.getElementById('prodId').value;
+      const code = document.getElementById('prodCode').value.trim();
+      const name = document.getElementById('prodName').value.trim();
+      const size = document.getElementById('prodSize').value.trim();
+      const color = document.getElementById('prodColor').value.trim();
+      const price = Number(document.getElementById('prodPrice').value) || 0;
+      const stock = Number(document.getElementById('prodStock').value) || 0;
+
+      if (id) {
+        const p = appData.products.find(item => item.id === id);
+        if (p) {
+          p.code = code;
+          p.name = name;
+          p.size = size;
+          p.color = color;
+          p.price = price;
+          p.stock = stock;
+        }
+      } else {
+        appData.products.push({
+          id: 'P_' + Date.now(),
+          code, name, size, color, price, stock
+        });
+      }
+
+      saveData();
+      closeModal('productModal');
+      renderProductsTable();
+      showToast('Đã lưu mẫu giày thành công!', 'success');
+    }
+
+    // 2.3 Bảng Đối tác (Nhà cung cấp & Khách hàng)
+    function renderPartnersTable() {
+      const search = (document.getElementById('searchPartnerInput').value || '').toLowerCase().trim();
+      const typeFilter = document.getElementById('filterPartnerType').value;
+      const tbody = document.getElementById('partnersTableBody');
+
+      const list = appData.partners.filter(pt => {
+        const matchesSearch = pt.name.toLowerCase().includes(search) || pt.phone.includes(search) || (pt.address || '').toLowerCase().includes(search);
+        const matchesType = typeFilter === 'all' || pt.type === typeFilter;
+        return matchesSearch && matchesType;
+      });
+
+      if (list.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted);">(đang cập nhật) - Chưa có dữ liệu đối tác</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = list.map(pt => `
+        <tr>
+          <td>
+            ${pt.type === 'supplier' 
+              ? '<span class="badge badge-primary">Nhà cung cấp</span>' 
+              : '<span class="badge badge-success">Khách hàng</span>'}
+          </td>
+          <td><strong>${pt.name}</strong></td>
+          <td>${pt.phone}</td>
+          <td>${pt.address || '(đang cập nhật)'}</td>
+          <td style="font-weight: 700; color: ${pt.debt > 0 ? 'var(--success)' : (pt.debt < 0 ? 'var(--danger)' : 'var(--text-main)')};">
+            ${formatMoney(pt.debt)}
+          </td>
+          <td>
+            <small style="color: var(--text-muted);">
+              ${pt.type === 'supplier' ? 'Mua vật tư định kỳ' : 'Đơn hàng mua sỉ/lẻ'}
+            </small>
+          </td>
+          <td>
+            <button class="btn btn-outline btn-sm" onclick="editPartner('${pt.id}')">Sửa</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function openPartnerModal(pt = null) {
+      document.getElementById('partnerId').value = pt ? pt.id : '';
+      document.getElementById('partnerType').value = pt ? pt.type : 'supplier';
+      document.getElementById('partnerName').value = pt ? pt.name : '';
+      document.getElementById('partnerPhone').value = pt ? pt.phone : '';
+      document.getElementById('partnerAddress').value = pt ? pt.address : '';
+      document.getElementById('partnerDebt').value = pt ? pt.debt : 0;
+
+      document.getElementById('partnerModalTitle').innerText = pt ? 'Cập nhật đối tác' : 'Thêm đối tác kinh doanh';
+      openModal('partnerModal');
+    }
+
+    function editPartner(id) {
+      const pt = appData.partners.find(item => item.id === id);
+      if (pt) openPartnerModal(pt);
+    }
+
+    function handleSavePartner(e) {
+      e.preventDefault();
+      const id = document.getElementById('partnerId').value;
+      const type = document.getElementById('partnerType').value;
+      const name = document.getElementById('partnerName').value.trim();
+      const phone = document.getElementById('partnerPhone').value.trim();
+      const address = document.getElementById('partnerAddress').value.trim();
+      const debt = Number(document.getElementById('partnerDebt').value) || 0;
+
+      if (id) {
+        const pt = appData.partners.find(item => item.id === id);
+        if (pt) {
+          pt.type = type;
+          pt.name = name;
+          pt.phone = phone;
+          pt.address = address;
+          pt.debt = debt;
+        }
+      } else {
+        appData.partners.push({
+          id: 'PT_' + Date.now(),
+          type, name, phone, address, debt
+        });
+      }
+
+      saveData();
+      closeModal('partnerModal');
+      renderPartnersTable();
+      showToast('Đã lưu đối tác thành công!', 'success');
+    }
+
+    /* ============================================================
+       PHÂN HỆ 3: ĐỊNH MỨC NGUYÊN VẬT LIỆU – BOM
+       Ràng buộc: Không cho sửa định mức đã áp dụng cho lệnh sản xuất đã xuất kho!
+       ============================================================ */
+    function renderBomModule() {
+      // 1. Nạp dropdown tính toán nhu cầu
+      const select = document.getElementById('calcBomProductSelect');
+      select.innerHTML = '<option value="">-- Chọn sản phẩm --</option>' + 
+        appData.products.map(p => `<option value="${p.id}">${p.name} (Size ${p.size}, ${p.color})</option>`).join('');
+
+      renderBomListTable();
+    }
+
+    function renderBomListTable() {
+      const tbody = document.getElementById('bomListTableBody');
+      if (appData.boms.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted);">(đang cập nhật) - Chưa có cấu trúc BOM nào được thiết lập</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = appData.boms.map(bom => {
+        const prod = appData.products.find(p => p.id === bom.productId);
+        const prodName = prod ? `${prod.name} (${prod.size}, ${prod.color})` : '(đang cập nhật)';
+
+        // Tính chi phí ước tính dựa trên giá nhập ước tính của từng vật tư
+        let estimatedCost = 0;
+        bom.items.forEach(item => {
+          const mat = appData.materials.find(m => m.id === item.materialId);
+          if (mat) {
+            estimatedCost += (item.norm || 0) * (mat.price || 0);
+          }
+        });
+
+        // Kiểm tra xem BOM này đã từng áp dụng cho lệnh sản xuất đã xuất kho chưa
+        const isLockedByProduction = appData.productionOrders.some(po => po.bomId === bom.id && po.exportedMaterials);
+
+        return `
+          <tr>
+            <td><strong>${bom.id}</strong></td>
+            <td>${prodName}</td>
+            <td><span class="badge badge-secondary">${bom.version}</span></td>
+            <td>
+              ${bom.status === 'locked' 
+                ? '<span class="badge badge-warning">Đã chốt phiên bản</span>' 
+                : '<span class="badge badge-success">Bản nháp</span>'}
+            </td>
+            <td>${bom.items.length} loại NVL</td>
+            <td style="font-weight: 700; color: var(--primary);">${formatMoney(estimatedCost)}</td>
+            <td>
+              <div style="display: flex; gap: 6px;">
+                <button class="btn btn-outline btn-sm" onclick="viewOrEditBom('${bom.id}')">
+                  ${isLockedByProduction ? 'Xem chi tiết (Đã khóa)' : 'Xem / Sửa'}
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function calculateBomRequirement() {
+      const prodId = document.getElementById('calcBomProductSelect').value;
+      const qty = Number(document.getElementById('calcBomQtyInput').value) || 0;
+      const resContainer = document.getElementById('calcBomResultContainer');
+
+      if (!prodId || qty <= 0) {
+        resContainer.innerHTML = '<div style="color: var(--text-muted); font-style: italic;">Chọn sản phẩm và số lượng để xem nhu cầu nguyên vật liệu thực tế.</div>';
+        return;
+      }
+
+      const bom = appData.boms.find(b => b.productId === prodId);
+      if (!bom) {
+        resContainer.innerHTML = '<div style="color: var(--danger);">⚠️ Sản phẩm này chưa được thiết lập BOM. Vui lòng bấm "+ Thiết lập BOM mới" phía trên.</div>';
+        return;
+      }
+
+      let rowsHtml = '';
+      let allSufficient = true;
+
+      bom.items.forEach(item => {
+        const mat = appData.materials.find(m => m.id === item.materialId);
+        if (mat) {
+          const totalRequired = item.norm * qty;
+          const isEnough = mat.stock >= totalRequired;
+          if (!isEnough) allSufficient = false;
+
+          rowsHtml += `
+            <tr>
+              <td><strong>${mat.name}</strong> (${mat.code})</td>
+              <td>${item.norm} ${mat.unit}</td>
+              <td style="font-weight: 700;">${totalRequired.toFixed(2)} ${mat.unit}</td>
+              <td>${mat.stock} ${mat.unit}</td>
+              <td>
+                ${isEnough 
+                  ? '<span class="badge badge-success">Đủ vật tư</span>' 
+                  : `<span class="badge badge-danger">Thiếu ${(totalRequired - mat.stock).toFixed(2)} ${mat.unit}</span>`}
+              </td>
+            </tr>
+          `;
+        }
+      });
+
+      resContainer.innerHTML = `
+        <div style="margin-bottom: 10px; font-weight: 600;">
+          Dự toán cho <strong>${qty}</strong> đôi giày. Tình trạng tổng thể: 
+          ${allSufficient 
+            ? '<span class="badge badge-success">Sẵn sàng sản xuất</span>' 
+            : '<span class="badge badge-danger">Cần nhập thêm vật tư</span>'}
+        </div>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Tên nguyên vật liệu</th>
+                <th>Định mức / Đôi</th>
+                <th>Tổng cần dùng</th>
+                <th>Tồn kho khả dụng</th>
+                <th>Trạng thái</th>
+              </tr>
+            </thead>
+            <tbody>${rowsHtml}</tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function openCreateBomModal() {
+      if (!requireAccess('bom')) return;
+      document.getElementById('bomId').value = '';
+      document.getElementById('bomModalTitle').innerText = 'Thiết lập định mức BOM mới';
+      document.getElementById('bomVersion').value = 'v1.0';
+      document.getElementById('bomStatus').value = 'draft';
+
+      // Nạp dropdown sản phẩm
+      const select = document.getElementById('bomProductSelect');
+      select.innerHTML = '<option value="">-- Chọn sản phẩm --</option>' + 
+        appData.products.map(p => `<option value="${p.id}">${p.name} (Size ${p.size}, ${p.color})</option>`).join('');
+
+      document.getElementById('bomItemsTableBody').innerHTML = '';
+      addBomItemRow(); // Thêm sẵn 1 dòng
+      openModal('bomModal');
+    }
+
+    function addBomItemRow(materialId = '', norm = 1) {
+      const tbody = document.getElementById('bomItemsTableBody');
+      const tr = document.createElement('tr');
+
+      const matOptions = appData.materials.filter(m => !m.disabled).map(m => 
+        `<option value="${m.id}" data-unit="${m.unit}" ${m.id === materialId ? 'selected' : ''}>${m.name} (${m.unit})</option>`
+      ).join('');
+
+      tr.innerHTML = `
+        <td>
+          <select class="form-select bom-mat-select" onchange="updateBomItemUnit(this)" required>
+            <option value="">-- Chọn nguyên liệu --</option>
+            ${matOptions}
+          </select>
+        </td>
+        <td class="bom-mat-unit">-</td>
+        <td>
+          <input type="number" class="form-control bom-mat-norm" value="${norm}" min="0.001" step="any" required>
+        </td>
+        <td>
+          <button type="button" class="btn btn-outline btn-sm" style="color: var(--danger);" onclick="this.closest('tr').remove()">Xóa</button>
+        </td>
+      `;
+
+      tbody.appendChild(tr);
+      // Kích hoạt cập nhật đơn vị
+      const sel = tr.querySelector('.bom-mat-select');
+      if (sel) updateBomItemUnit(sel);
+    }
+
+    function updateBomItemUnit(selectElement) {
+      const selectedOption = selectElement.options[selectElement.selectedIndex];
+      const unit = selectedOption ? selectedOption.getAttribute('data-unit') : '-';
+      const tr = selectElement.closest('tr');
+      if (tr) {
+        tr.querySelector('.bom-mat-unit').innerText = unit || '-';
+      }
+    }
+
+    function viewOrEditBom(bomId) {
+      const bom = appData.boms.find(b => b.id === bomId);
+      if (!bom) return;
+
+      // Kiểm tra xem lệnh sản xuất đã xuất kho chưa
+      const isLockedByProd = appData.productionOrders.some(po => po.bomId === bom.id && po.exportedMaterials);
+
+      document.getElementById('bomId').value = bom.id;
+      document.getElementById('bomModalTitle').innerText = isLockedByProd ? 'Chi tiết BOM (Đã khóa do lệnh sản xuất đã xuất kho)' : 'Cập nhật BOM';
+      document.getElementById('bomVersion').value = bom.version;
+      document.getElementById('bomStatus').value = bom.status;
+
+      const select = document.getElementById('bomProductSelect');
+      select.innerHTML = appData.products.map(p => 
+        `<option value="${p.id}" ${p.id === bom.productId ? 'selected' : ''}>${p.name} (Size ${p.size}, ${p.color})</option>`
+      ).join('');
+
+      const tbody = document.getElementById('bomItemsTableBody');
+      tbody.innerHTML = '';
+      bom.items.forEach(it => {
+        addBomItemRow(it.materialId, it.norm);
+      });
+
+      // Nếu đã khóa thì cấm sửa
+      const submitBtn = document.querySelector('#bomModal button[type="submit"]');
+      if (isLockedByProd) {
+        submitBtn.style.display = 'none';
+        showToast('BOM này đã gắn với lệnh sản xuất đã xuất kho. Không cho phép sửa đổi theo quy tắc nghiệp vụ!', 'warning');
+      } else {
+        submitBtn.style.display = 'inline-flex';
+      }
+
+      openModal('bomModal');
+    }
+
+    function handleSaveBom(e) {
+      e.preventDefault();
+      const bomId = document.getElementById('bomId').value;
+      const productId = document.getElementById('bomProductSelect').value;
+      const version = document.getElementById('bomVersion').value.trim();
+      const status = document.getElementById('bomStatus').value;
+
+      if (!productId) {
+        alert('Vui lòng chọn sản phẩm áp dụng BOM');
+        return;
+      }
+
+      // Đọc các dòng vật tư
+      const rows = document.querySelectorAll('#bomItemsTableBody tr');
+      const items = [];
+      rows.forEach(r => {
+        const matId = r.querySelector('.bom-mat-select').value;
+        const norm = Number(r.querySelector('.bom-mat-norm').value) || 0;
+        if (matId && norm > 0) {
+          items.push({ materialId: matId, norm });
+        }
+      });
+
+      if (items.length === 0) {
+        alert('Vui lòng khai báo ít nhất một nguyên vật liệu hợp lệ cho BOM');
+        return;
+      }
+
+      if (bomId) {
+        // Kiểm tra lại khóa bảo vệ một lần nữa
+        const isLockedByProd = appData.productionOrders.some(po => po.bomId === bomId && po.exportedMaterials);
+        if (isLockedByProd) {
+          alert('Không thể lưu! Định mức này đã được áp dụng cho lệnh sản xuất đã xuất kho.');
+          return;
+        }
+
+        const bom = appData.boms.find(b => b.id === bomId);
+        if (bom) {
+          bom.productId = productId;
+          bom.version = version;
+          bom.status = status;
+          bom.items = items;
+        }
+      } else {
+        appData.boms.push({
+          id: 'BOM_' + Date.now(),
+          productId,
+          version,
+          status,
+          items
+        });
+      }
+
+      saveData();
+      closeModal('bomModal');
+      renderBomModule();
+      showToast('Đã lưu cấu trúc định mức BOM thành công!', 'success');
+    }
+
+    /* ============================================================
+       PHÂN HỆ 4: QUẢN LÝ LỆNH SẢN XUẤT
+       Quy trình: Chờ duyệt -> Xuất nguyên liệu (giảm kho NVL) -> Đang sản xuất -> Hoàn thành (tăng kho thành phẩm)
+       ============================================================ */
+    function renderProductionOrdersTable() {
+      const statusFilter = document.getElementById('filterProdOrderStatus').value;
+      const tbody = document.getElementById('prodOrdersTableBody');
+
+      const list = appData.productionOrders.filter(po => {
+        return statusFilter === 'all' || po.status === statusFilter;
+      });
+
+      if (list.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted);">(đang cập nhật) - Chưa có lệnh sản xuất nào</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = list.map(po => {
+        const prod = appData.products.find(p => p.id === po.productId);
+        const prodName = prod ? `${prod.name} (Size ${prod.size}, ${prod.color})` : '(đang cập nhật)';
+
+        let statusBadge = '<span class="badge badge-secondary">Chờ duyệt</span>';
+        if (po.status === 'Đang sản xuất') statusBadge = '<span class="badge badge-warning">Đang sản xuất</span>';
+        if (po.status === 'Hoàn thành') statusBadge = '<span class="badge badge-success">Hoàn thành</span>';
+        if (po.status === 'Đã hủy') statusBadge = '<span class="badge badge-danger">Đã hủy</span>';
+
+        // Nút thao tác theo trạng thái
+        let actionButtons = '';
+        if (po.status === 'Chờ duyệt') {
+          actionButtons = `
+            <button class="btn btn-warning btn-sm" onclick="exportMaterialsForOrder('${po.id}')">Xuất NVL & Bắt đầu</button>
+            <button class="btn btn-outline btn-sm" style="color: var(--danger);" onclick="cancelProdOrder('${po.id}')">Hủy</button>
+          `;
+        } else if (po.status === 'Đang sản xuất') {
+          actionButtons = `
+            <button class="btn btn-success btn-sm" onclick="completeProdOrder('${po.id}')">Hoàn thành & Nhập kho</button>
+          `;
+        } else {
+          actionButtons = `<small style="color: var(--text-muted);">Đã kết thúc</small>`;
+        }
+
+        return `
+          <tr>
+            <td><strong>${po.code}</strong></td>
+            <td>${prodName}</td>
+            <td style="font-weight: 700;">${po.qty} đôi</td>
+            <td>${po.startDate}</td>
+            <td>
+              ${po.exportedMaterials 
+                ? '<span class="badge badge-success">Đã xuất kho NVL</span>' 
+                : '<span class="badge badge-warning">Chưa xuất kho</span>'}
+            </td>
+            <td>${statusBadge}</td>
+            <td>${actionButtons}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function openCreateProdOrderModal() {
+      if (!requireAccess('production')) return;
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('poCode').value = 'LSX-' + Math.floor(1000 + Math.random() * 9000);
+      document.getElementById('poStartDate').value = today;
+      document.getElementById('poQty').value = 20;
+
+      const sel = document.getElementById('poProductSelect');
+      sel.innerHTML = '<option value="">-- Chọn sản phẩm --</option>' + 
+        appData.products.map(p => `<option value="${p.id}">${p.name} (Size ${p.size}, ${p.color})</option>`).join('');
+
+      document.getElementById('poMaterialCheckContainer').innerHTML = '<div style="color: var(--text-muted);">(Chọn sản phẩm để kiểm tra nhu cầu vật tư)</div>';
+      openModal('prodOrderModal');
+    }
+
+    function checkPoMaterialAvailability() {
+      const prodId = document.getElementById('poProductSelect').value;
+      const qty = Number(document.getElementById('poQty').value) || 0;
+      const container = document.getElementById('poMaterialCheckContainer');
+      const submitBtn = document.getElementById('poSubmitBtn');
+
+      if (!prodId || qty <= 0) {
+        container.innerHTML = '<div style="color: var(--text-muted);">(Chọn sản phẩm để kiểm tra nhu cầu vật tư)</div>';
+        return;
+      }
+
+      const bom = appData.boms.find(b => b.productId === prodId);
+      if (!bom) {
+        container.innerHTML = '<div style="color: var(--danger);">⚠️ Sản phẩm này chưa có định mức BOM. Cần tạo BOM trước khi lập lệnh sản xuất.</div>';
+        submitBtn.disabled = true;
+        return;
+      }
+
+      let allSufficient = true;
+      let html = '<div class="table-responsive"><table><thead><tr><th>Nguyên vật liệu</th><th>Cần dùng</th><th>Tồn kho khả dụng</th><th>Đánh giá</th></tr></thead><tbody>';
+
+      bom.items.forEach(it => {
+        const mat = appData.materials.find(m => m.id === it.materialId);
+        if (mat) {
+          const need = it.norm * qty;
+          const isEnough = mat.stock >= need;
+          if (!isEnough) allSufficient = false;
+
+          html += `
+            <tr>
+              <td>${mat.name}</td>
+              <td>${need.toFixed(2)} ${mat.unit}</td>
+              <td>${mat.stock} ${mat.unit}</td>
+              <td>${isEnough ? '<span class="badge badge-success">Đủ</span>' : '<span class="badge badge-danger">Thiếu hàng</span>'}</td>
+            </tr>
+          `;
+        }
+      });
+      html += '</tbody></table></div>';
+
+      if (!allSufficient) {
+        html += '<div style="color: var(--danger); margin-top: 8px; font-weight: 600;">⚠️ Tồn kho không đủ để đáp ứng toàn bộ lệnh. Bạn vẫn có thể tạo lệnh "Chờ duyệt", nhưng KHÔNG THỂ xuất kho cho tới khi nhập đủ vật tư.</div>';
+      }
+
+      submitBtn.disabled = false;
+      container.innerHTML = html;
+    }
+
+    function handleSaveProdOrder(e) {
+      e.preventDefault();
+      const code = document.getElementById('poCode').value;
+      const startDate = document.getElementById('poStartDate').value;
+      const productId = document.getElementById('poProductSelect').value;
+      const qty = Number(document.getElementById('poQty').value) || 0;
+
+      const bom = appData.boms.find(b => b.productId === productId);
+      if (!bom) {
+        alert('Sản phẩm này chưa có định mức BOM!');
+        return;
+      }
+
+      appData.productionOrders.push({
+        id: 'PO_' + Date.now(),
+        code,
+        startDate,
+        productId,
+        qty,
+        bomId: bom.id,
+        status: 'Chờ duyệt',
+        exportedMaterials: false,
+        actualExported: []
+      });
+
+      saveData();
+      closeModal('prodOrderModal');
+      renderProductionOrdersTable();
+      showToast(`Đã tạo Lệnh sản xuất ${code} ở trạng thái Chờ duyệt!`, 'success');
+    }
+
+    // Xuất kho nguyên vật liệu cho Lệnh sản xuất
+    function exportMaterialsForOrder(poId) {
+      const po = appData.productionOrders.find(o => o.id === poId);
+      if (!po) return;
+
+      const bom = appData.boms.find(b => b.id === po.bomId);
+      if (!bom) {
+        alert('Không tìm thấy BOM tương ứng!');
+        return;
+      }
+
+      // RÀNG BUỘC: Kiểm tra tồn kho khả dụng - KHÔNG CHO PHÉP XUẤT KHO ÂM!
+      const shortages = [];
+      bom.items.forEach(it => {
+        const mat = appData.materials.find(m => m.id === it.materialId);
+        const need = it.norm * po.qty;
+        if (!mat || mat.stock < need) {
+          shortages.push(`${mat ? mat.name : 'Vật tư'}: cần ${need}, chỉ có ${mat ? mat.stock : 0}`);
+        }
+      });
+
+      if (shortages.length > 0) {
+        alert('KHÔNG THỂ XUẤT KHO!\n' + shortages.join('\n') + '\nHệ thống cấm xuất kho âm. Vui lòng nhập thêm nguyên vật liệu.');
+        return;
+      }
+
+      if (!confirm(`Xác nhận xuất toàn bộ nguyên vật liệu theo định mức cho ${po.qty} đôi giày (Lệnh: ${po.code})?`)) return;
+
+      const today = new Date().toISOString().split('T')[0];
+      const actualExported = [];
+
+      // Trừ tồn kho và ghi lịch sử kho BẤT BIẾN
+      bom.items.forEach(it => {
+        const mat = appData.materials.find(m => m.id === it.materialId);
+        const need = it.norm * po.qty;
+        const beforeQty = mat.stock;
+        mat.stock = Number((mat.stock - need).toFixed(2));
+        const afterQty = mat.stock;
+
+        actualExported.push({ materialId: mat.id, qty: need });
+
+        // Ghi vào lịch sử kho (5.4)
+        appData.warehouseHistory.push({
+          id: 'WH_' + Date.now() + Math.floor(Math.random()*100),
+          code: 'PXK-' + po.code,
+          date: today,
+          type: 'Xuất',
+          itemName: mat.name,
+          qty: need,
+          beforeQty: beforeQty,
+          afterQty: afterQty,
+          note: `Xuất xưởng may Lệnh ${po.code}`
+        });
+      });
+
+      po.exportedMaterials = true;
+      po.status = 'Đang sản xuất';
+      po.actualExported = actualExported;
+
+      saveData();
+      renderProductionOrdersTable();
+      showToast(`Đã xuất kho NVL và chuyển lệnh ${po.code} sang Đang sản xuất!`, 'success');
+    }
+
+    // Hoàn thành sản xuất -> Tăng tồn kho giày thành phẩm
+    function completeProdOrder(poId) {
+      const po = appData.productionOrders.find(o => o.id === poId);
+      if (!po) return;
+
+      const prod = appData.products.find(p => p.id === po.productId);
+      if (!prod) {
+        alert('Không tìm thấy sản phẩm thành phẩm tương ứng!');
+        return;
+      }
+
+      if (!confirm(`Xác nhận hoàn thành sản xuất ${po.qty} đôi giày "${prod.name}" và nhập kho thành phẩm?`)) return;
+
+      const today = new Date().toISOString().split('T')[0];
+      const beforeQty = prod.stock || 0;
+      prod.stock = beforeQty + po.qty;
+      const afterQty = prod.stock;
+
+      // Ghi lịch sử kho nhập thành phẩm
+      appData.warehouseHistory.push({
+        id: 'WH_' + Date.now(),
+        code: 'PNK-TP-' + po.code,
+        date: today,
+        type: 'Nhập',
+        itemName: `${prod.name} (Size ${prod.size}, ${prod.color})`,
+        qty: po.qty,
+        beforeQty: beforeQty,
+        afterQty: afterQty,
+        note: `Nhập kho thành phẩm hoàn thành từ Lệnh ${po.code}`
+      });
+
+      po.status = 'Hoàn thành';
+      saveData();
+      renderProductionOrdersTable();
+      showToast(`Lệnh ${po.code} đã hoàn thành. Đã tăng tồn kho ${po.qty} đôi giày thành phẩm!`, 'success');
+    }
+
+    function cancelProdOrder(poId) {
+      const po = appData.productionOrders.find(o => o.id === poId);
+      if (!po) return;
+      if (po.exportedMaterials) {
+        alert('Không thể hủy lệnh sản xuất đã xuất kho nguyên liệu!');
+        return;
+      }
+      if (confirm(`Bạn có chắc chắn muốn hủy lệnh sản xuất ${po.code}?`)) {
+        po.status = 'Đã hủy';
+        saveData();
+        renderProductionOrdersTable();
+        showToast(`Đã hủy lệnh ${po.code}`, 'info');
+      }
+    }
+
+    /* ============================================================
+       PHÂN HỆ 5: QUẢN LÝ KHO
+       ============================================================ */
+    function switchWarehouseTab(tabKey) {
+      document.querySelectorAll('.wh-tab-content').forEach(c => c.style.display = 'none');
+      document.getElementById('wh-tab-' + tabKey).style.display = 'block';
+
+      const tabBtns = document.querySelectorAll('#sec-warehouse .tab-btn');
+      tabBtns.forEach(btn => btn.classList.remove('active'));
+      const activeBtn = Array.from(tabBtns).find(b => b.getAttribute('onclick').includes("'" + tabKey + "'"));
+      if (activeBtn) activeBtn.classList.add('active');
+
+      if (tabKey === 'stock-materials') renderWarehouseStockMaterialsTable();
+      if (tabKey === 'stock-products') renderWarehouseStockProductsTable();
+      if (tabKey === 'history') renderWarehouseHistoryTable();
+    }
+
+    function renderWarehouseModule() {
+      renderWarehouseStockMaterialsTable();
+      renderWarehouseStockProductsTable();
+      renderWarehouseHistoryTable();
+    }
+
+    function renderWarehouseStockMaterialsTable() {
+      const tbody = document.getElementById('whMaterialStockTableBody');
+      const activeMats = appData.materials.filter(m => !m.disabled);
+
+      if (activeMats.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--text-muted);">(đang cập nhật) - Chưa có nguyên vật liệu trong kho</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = activeMats.map(m => {
+        const isLow = m.stock <= m.minStock;
+        const totalVal = (m.stock || 0) * (m.price || 0);
+
+        return `
+          <tr style="${isLow ? 'background-color: #fef2f2;' : ''}">
+            <td><strong>${m.code}</strong></td>
+            <td>${m.name}</td>
+            <td>${m.unit}</td>
+            <td style="font-weight: 700; color: ${isLow ? 'var(--danger)' : 'var(--text-main)'};">
+              ${m.stock}
+            </td>
+            <td>${m.minStock}</td>
+            <td>${formatMoney(m.price)}</td>
+            <td style="font-weight: 700;">${formatMoney(totalVal)}</td>
+            <td>
+              ${isLow ? '<span class="badge badge-danger">Dưới ngưỡng an toàn</span>' : '<span class="badge badge-success">An toàn</span>'}
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderWarehouseStockProductsTable() {
+      const tbody = document.getElementById('whProductStockTableBody');
+      if (appData.products.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--text-muted);">(đang cập nhật) - Chưa có giày thành phẩm trong kho</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = appData.products.map(p => {
+        const totalVal = (p.stock || 0) * (p.price || 0);
+        return `
+          <tr>
+            <td><strong>${p.code}</strong></td>
+            <td>${p.name}</td>
+            <td><span class="badge badge-secondary">${p.size}</span></td>
+            <td>${p.color}</td>
+            <td style="font-weight: 700; color: ${p.stock > 0 ? 'var(--success)' : 'var(--danger)'};">${p.stock}</td>
+            <td>${formatMoney(p.price)}</td>
+            <td style="font-weight: 700;">${formatMoney(totalVal)}</td>
+            <td>
+              ${p.stock > 0 ? '<span class="badge badge-success">Sẵn sàng xuất bán</span>' : '<span class="badge badge-danger">Hết hàng</span>'}
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // 5.4 Lịch sử kho BẤT BIẾN (Không sửa / xóa)
+    function renderWarehouseHistoryTable() {
+      const search = (document.getElementById('searchWhHistoryInput').value || '').toLowerCase().trim();
+      const typeFilter = document.getElementById('filterWhHistoryType').value;
+      const tbody = document.getElementById('whHistoryTableBody');
+
+      const list = appData.warehouseHistory.filter(h => {
+        const matchesSearch = h.code.toLowerCase().includes(search) || h.itemName.toLowerCase().includes(search) || (h.note || '').toLowerCase().includes(search);
+        const matchesType = typeFilter === 'all' || h.type === typeFilter;
+        return matchesSearch && matchesType;
+      });
+
+      if (list.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--text-muted);">(đang cập nhật) - Chưa có lịch sử xuất nhập kho</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = list.map(h => {
+        let typeBadge = '<span class="badge badge-primary">Nhập</span>';
+        if (h.type === 'Xuất') typeBadge = '<span class="badge badge-warning">Xuất</span>';
+        if (h.type === 'Bán') typeBadge = '<span class="badge badge-danger">Bán hàng</span>';
+        if (h.type === 'Trả') typeBadge = '<span class="badge badge-secondary">Trả lại</span>';
+
+        return `
+          <tr>
+            <td><strong>${h.code}</strong></td>
+            <td>${h.date}</td>
+            <td>${typeBadge}</td>
+            <td>${h.itemName}</td>
+            <td style="font-weight: 700;">${h.qty}</td>
+            <td>${h.beforeQty}</td>
+            <td style="font-weight: 700;">${h.afterQty}</td>
+            <td><small>${h.note || '-'}</small></td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // Lập phiếu nhập kho nguyên liệu (5.2)
+    function openStockInModal() {
+      if (!requireAccess('warehouse')) return;
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('siCode').value = 'PNK-' + Math.floor(1000 + Math.random() * 9000);
+      document.getElementById('siDate').value = today;
+
+      // Nạp dropdown nhà cung cấp
+      const supSelect = document.getElementById('siSupplierSelect');
+      const suppliers = appData.partners.filter(p => p.type === 'supplier');
+      supSelect.innerHTML = suppliers.length ? suppliers.map(s => `<option value="${s.id}">${s.name}</option>`).join('') : '<option value="">-- Chưa có nhà cung cấp --</option>';
+
+      // Nạp dropdown nguyên vật liệu
+      const matSelect = document.getElementById('siMaterialSelect');
+      const activeMats = appData.materials.filter(m => !m.disabled);
+      matSelect.innerHTML = activeMats.length ? activeMats.map(m => `<option value="${m.id}" data-price="${m.price}">${m.name} (${m.unit})</option>`).join('') : '<option value="">-- Chưa có NVL --</option>';
+
+      handleStockInMaterialChange();
+      openModal('stockInModal');
+    }
+
+    function handleStockInMaterialChange() {
+      const matSelect = document.getElementById('siMaterialSelect');
+      const opt = matSelect.options[matSelect.selectedIndex];
+      if (opt) {
+        const price = opt.getAttribute('data-price') || 0;
+        document.getElementById('siPrice').value = price;
+        document.getElementById('siQty').value = 10;
+        calcStockInTotal();
+      }
+    }
+
+    function calcStockInTotal() {
+      const qty = Number(document.getElementById('siQty').value) || 0;
+      const price = Number(document.getElementById('siPrice').value) || 0;
+      const total = qty * price;
+      document.getElementById('siTotalDisplay').value = formatMoney(total);
+    }
+
+    function handleSaveStockIn(e) {
+      e.preventDefault();
+      const code = document.getElementById('siCode').value;
+      const date = document.getElementById('siDate').value;
+      const supplierId = document.getElementById('siSupplierSelect').value;
+      const materialId = document.getElementById('siMaterialSelect').value;
+      const qty = Number(document.getElementById('siQty').value) || 0;
+      const price = Number(document.getElementById('siPrice').value) || 0;
+      const payStatus = document.getElementById('siPayStatus').value;
+
+      if (!materialId || qty <= 0) {
+        alert('Vui lòng chọn nguyên vật liệu và nhập số lượng hợp lệ!');
+        return;
+      }
+
+      const mat = appData.materials.find(m => m.id === materialId);
+      const supplier = appData.partners.find(p => p.id === supplierId);
+      const totalCost = qty * price;
+
+      // 1. Tự động tăng tồn kho nguyên vật liệu
+      const beforeQty = mat.stock;
+      mat.stock = Number((mat.stock + qty).toFixed(2));
+      const afterQty = mat.stock;
+
+      // 2. Ghi lịch sử kho bất biến
+      appData.warehouseHistory.push({
+        id: 'WH_' + Date.now(),
+        code: code,
+        date: date,
+        type: 'Nhập',
+        itemName: mat.name,
+        qty: qty,
+        beforeQty: beforeQty,
+        afterQty: afterQty,
+        note: `Nhập từ NCC: ${supplier ? supplier.name : 'NCC lẻ'}`
+      });
+
+      // 3. Xử lý tài chính: ghi nhận Chi hoặc ghi nhận Công nợ
+      if (payStatus === 'paid') {
+        appData.cashflows.push({
+          id: 'CF_' + Date.now(),
+          date: date,
+          type: 'Chi',
+          desc: `Thanh toán tiền nhập kho ${mat.name} (${code})`,
+          amount: totalCost,
+          ref: supplier ? supplier.name : ''
+        });
+      } else {
+        // Ghi nhận nợ NCC (Xưởng nợ đối tác: số âm hoặc tăng nợ phải trả)
+        if (supplier) {
+          supplier.debt = (supplier.debt || 0) - totalCost;
+        }
+      }
+
+      saveData();
+      closeModal('stockInModal');
+      renderWarehouseModule();
+      showToast(`Đã nhập ${qty} ${mat.unit} "${mat.name}". Tồn kho mới: ${afterQty} ${mat.unit}`, 'success');
+    }
+
+    /* ============================================================
+       PHÂN HỆ 6: QUẢN LÝ BÁN HÀNG
+       ============================================================ */
+    function renderSalesOrdersTable() {
+      const search = (document.getElementById('searchSalesOrderInput').value || '').toLowerCase().trim();
+      const tbody = document.getElementById('salesOrdersTableBody');
+
+      const list = appData.salesOrders.filter(so => {
+        const cust = appData.partners.find(p => p.id === so.customerId);
+        const custName = cust ? cust.name.toLowerCase() : '';
+        return so.code.toLowerCase().includes(search) || custName.includes(search);
+      });
+
+      if (list.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="11" style="text-align: center; color: var(--text-muted);">(đang cập nhật) - Chưa có đơn bán hàng nào</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = list.map(so => {
+        const cust = appData.partners.find(p => p.id === so.customerId);
+        const prod = appData.products.find(p => p.id === so.productId);
+        const prodInfo = prod ? `${prod.name} (${prod.size}, ${prod.color})` : '(đang cập nhật)';
+
+        return `
+          <tr>
+            <td><strong>${so.code}</strong></td>
+            <td>${so.date}</td>
+            <td><strong>${cust ? cust.name : '(Khách lẻ)'}</strong></td>
+            <td>${prodInfo}</td>
+            <td style="font-weight: 700;">${so.qty}</td>
+            <td style="font-weight: 700; color: var(--primary);">${formatMoney(so.total)}</td>
+            <td>${formatMoney(so.paid)}</td>
+            <td style="color: ${so.remaining > 0 ? 'var(--danger)' : 'var(--text-muted)'}; font-weight: 600;">
+              ${formatMoney(so.remaining)}
+            </td>
+            <td>
+              ${so.remaining === 0 
+                ? '<span class="badge badge-success">Đã thanh toán</span>' 
+                : '<span class="badge badge-warning">Còn nợ</span>'}
+            </td>
+            <td><span class="badge badge-primary">${so.deliveryStatus}</span></td>
+            <td>
+              <button class="btn btn-outline btn-sm" onclick="showInvoice('${so.id}')">In hóa đơn</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function openCreateOrderModal() {
+      if (!requireAccess('sales')) return;
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('soCode').value = 'DH-' + Math.floor(1000 + Math.random() * 9000);
+      document.getElementById('soDate').value = today;
+
+      const custSelect = document.getElementById('soCustomerSelect');
+      const customers = appData.partners.filter(p => p.type === 'customer');
+      custSelect.innerHTML = customers.length ? customers.map(c => `<option value="${c.id}">${c.name} (${c.phone})</option>`).join('') : '<option value="">-- Chưa có khách hàng --</option>';
+
+      const prodSelect = document.getElementById('soProductSelect');
+      prodSelect.innerHTML = appData.products.length ? appData.products.map(p => `<option value="${p.id}" data-price="${p.price}" data-stock="${p.stock}">${p.name} (Size ${p.size}, ${p.color})</option>`).join('') : '<option value="">-- Chưa có giày trong kho --</option>';
+
+      handleSalesProductChange();
+      openModal('salesOrderModal');
+    }
+
+    function handleSalesProductChange() {
+      const prodSelect = document.getElementById('soProductSelect');
+      const opt = prodSelect.options[prodSelect.selectedIndex];
+      const stockInfo = document.getElementById('soStockAvailableInfo');
+
+      if (opt) {
+        const price = opt.getAttribute('data-price') || 0;
+        const stock = Number(opt.getAttribute('data-stock')) || 0;
+
+        document.getElementById('soPrice').value = price;
+        document.getElementById('soQty').value = 1;
+        document.getElementById('soDiscount').value = 0;
+
+        stockInfo.innerHTML = `Tồn kho thành phẩm khả dụng: <span style="color: ${stock > 0 ? 'var(--success)' : 'var(--danger)'};">${stock} đôi</span>`;
+
+        calcSalesTotal();
+      }
+    }
+
+    function calcSalesTotal() {
+      const qty = Number(document.getElementById('soQty').value) || 0;
+      const price = Number(document.getElementById('soPrice').value) || 0;
+      const discount = Number(document.getElementById('soDiscount').value) || 0;
+      const total = Math.max(0, qty * price - discount);
+
+      document.getElementById('soTotalDisplay').value = formatMoney(total);
+
+      let paid = Number(document.getElementById('soPaid').value);
+      if (isNaN(paid)) paid = 0;
+      const debt = Math.max(0, total - paid);
+      document.getElementById('soDebtDisplay').value = formatMoney(debt);
+    }
+
+    function handleSaveSalesOrder(e) {
+      e.preventDefault();
+      const code = document.getElementById('soCode').value;
+      const date = document.getElementById('soDate').value;
+      const customerId = document.getElementById('soCustomerSelect').value;
+      const productId = document.getElementById('soProductSelect').value;
+      const qty = Number(document.getElementById('soQty').value) || 0;
+      const price = Number(document.getElementById('soPrice').value) || 0;
+      const discount = Number(document.getElementById('soDiscount').value) || 0;
+      const paid = Number(document.getElementById('soPaid').value) || 0;
+      const deliveryStatus = document.getElementById('soDeliveryStatus').value;
+
+      if (!productId || qty <= 0) {
+        alert('Vui lòng chọn sản phẩm và số lượng bán hợp lệ!');
+        return;
+      }
+
+      const prod = appData.products.find(p => p.id === productId);
+      const cust = appData.partners.find(p => p.id === customerId);
+
+      // RÀNG BUỘC: Kiểm tra tồn kho trước khi xác nhận bán!
+      if (!prod || prod.stock < qty) {
+        alert(`KHÔNG ĐỦ HÀNG TRONG KHO!\nTồn kho hiện tại chỉ còn ${prod ? prod.stock : 0} đôi. Bạn yêu cầu bán ${qty} đôi.\nHệ thống không cho phép xuất bán âm.`);
+        return;
+      }
+
+      const total = Math.max(0, qty * price - discount);
+      const remaining = Math.max(0, total - paid);
+
+      // 1. Tự động giảm tồn kho thành phẩm
+      const beforeQty = prod.stock;
+      prod.stock = beforeQty - qty;
+      const afterQty = prod.stock;
+
+      // 2. Ghi nhật ký kho
+      appData.warehouseHistory.push({
+        id: 'WH_' + Date.now(),
+        code: 'PXK-BAN-' + code,
+        date: date,
+        type: 'Bán',
+        itemName: `${prod.name} (${prod.size}, ${prod.color})`,
+        qty: qty,
+        beforeQty: beforeQty,
+        afterQty: afterQty,
+        note: `Bán hàng theo đơn ${code} cho ${cust ? cust.name : 'Khách'}`
+      });
+
+      // 3. Theo dõi công nợ khách hàng
+      if (cust && remaining > 0) {
+        cust.debt = (cust.debt || 0) + remaining;
+      }
+
+      // 4. Nếu khách trả tiền, ghi ngay vào sổ Thu
+      if (paid > 0) {
+        appData.cashflows.push({
+          id: 'CF_' + Date.now(),
+          date: date,
+          type: 'Thu',
+          desc: `Thu tiền bán giày đơn hàng ${code}`,
+          amount: paid,
+          ref: cust ? cust.name : 'Khách hàng'
+        });
+      }
+
+      // 5. Lưu đơn hàng
+      const newOrder = {
+        id: 'SO_' + Date.now(),
+        code,
+        date,
+        customerId,
+        productId,
+        qty,
+        price,
+        discount,
+        total,
+        paid,
+        remaining,
+        payStatus: remaining === 0 ? 'Đã thanh toán' : 'Còn thiếu',
+        deliveryStatus
+      };
+      appData.salesOrders.push(newOrder);
+
+      saveData();
+      closeModal('salesOrderModal');
+      renderSalesOrdersTable();
+      showToast(`Đã xuất bán ${qty} đôi giày đơn ${code}! Tồn kho còn: ${afterQty}`, 'success');
+
+      // Mở luôn hóa đơn để in nếu cần
+      showInvoice(newOrder.id);
+    }
+
+    // In hóa đơn bán hàng bằng chức năng in trình duyệt (window.print())
+    function showInvoice(orderId) {
+      const so = appData.salesOrders.find(o => o.id === orderId);
+      if (!so) return;
+
+      const cust = appData.partners.find(p => p.id === so.customerId);
+      const prod = appData.products.find(p => p.id === so.productId);
+
+      document.getElementById('invCodeDate').innerText = `Mã đơn: ${so.code} - Ngày: ${so.date}`;
+      document.getElementById('invCustomerName').innerText = cust ? cust.name : 'Khách mua tại xưởng';
+      document.getElementById('invCustomerPhone').innerText = cust ? cust.phone : '(đang cập nhật)';
+      document.getElementById('invCustomerAddress').innerText = cust ? (cust.address || '(đang cập nhật)') : '(đang cập nhật)';
+
+      const prodName = prod ? `${prod.name} (Size ${prod.size}, ${prod.color})` : 'Giày thành phẩm';
+      const subtotal = so.qty * so.price;
+
+      document.getElementById('invItemsBody').innerHTML = `
+        <tr>
+          <td style="text-align: center; border: 1px solid #000;">1</td>
+          <td style="border: 1px solid #000;"><strong>${prodName}</strong></td>
+          <td style="text-align: center; border: 1px solid #000;">${so.qty}</td>
+          <td style="text-align: right; border: 1px solid #000;">${formatMoney(so.price)}</td>
+          <td style="text-align: right; border: 1px solid #000; font-weight: 700;">${formatMoney(subtotal)}</td>
+        </tr>
+      `;
+
+      document.getElementById('invSubtotal').innerText = formatMoney(subtotal);
+      document.getElementById('invDiscount').innerText = formatMoney(so.discount);
+      document.getElementById('invTotal').innerText = formatMoney(so.total);
+      document.getElementById('invPaid').innerText = formatMoney(so.paid);
+      document.getElementById('invRemaining').innerText = formatMoney(so.remaining);
+
+      openModal('invoiceModal');
+    }
+
+    /* ============================================================
+       PHÂN HỆ 7: QUẢN LÝ THU CHI
+       ============================================================ */
+    function renderCashflowModule() {
+      // 1. Tính tổng thu, tổng chi thực tế
+      let totalIncome = 0;
+      let totalExpense = 0;
+
+      appData.cashflows.forEach(cf => {
+        if (cf.type === 'Thu') totalIncome += Number(cf.amount) || 0;
+        if (cf.type === 'Chi') totalExpense += Number(cf.amount) || 0;
+      });
+
+      document.getElementById('cfTotalIncome').innerText = formatMoney(totalIncome);
+      document.getElementById('cfTotalExpense').innerText = formatMoney(totalExpense);
+      const diff = totalIncome - totalExpense;
+      const diffEl = document.getElementById('cfNetDifference');
+      diffEl.innerText = formatMoney(diff);
+      diffEl.style.color = diff >= 0 ? 'var(--success)' : 'var(--danger)';
+
+      renderCashflowTable();
+    }
+
+    function renderCashflowTable() {
+      const search = (document.getElementById('searchCashflowInput').value || '').toLowerCase().trim();
+      const typeFilter = document.getElementById('filterCashflowType').value;
+      const tbody = document.getElementById('cashflowTableBody');
+
+      const list = appData.cashflows.filter(cf => {
+        const matchesSearch = cf.desc.toLowerCase().includes(search) || (cf.ref || '').toLowerCase().includes(search);
+        const matchesType = typeFilter === 'all' || cf.type === typeFilter;
+        return matchesSearch && matchesType;
+      });
+
+      if (list.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted);">(đang cập nhật) - Chưa có giao dịch thu chi nào</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = list.map(cf => {
+        const isThu = cf.type === 'Thu';
+        return `
+          <tr>
+            <td><strong>${cf.id}</strong></td>
+            <td>${cf.date}</td>
+            <td>
+              <span class="badge ${isThu ? 'badge-success' : 'badge-danger'}">
+                ${isThu ? 'Khoản Thu (+)' : 'Khoản Chi (-)'}
+              </span>
+            </td>
+            <td>${cf.desc}</td>
+            <td style="font-weight: 700; color: ${isThu ? 'var(--success)' : 'var(--danger)'};">
+              ${isThu ? '+' : '-'}${formatMoney(cf.amount)}
+            </td>
+            <td>${cf.ref || '-'}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function openCashflowModal() {
+      if (!requireAccess('cashflow')) return;
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('cfDate').value = today;
+      document.getElementById('cfAmount').value = '';
+      document.getElementById('cfDesc').value = '';
+      document.getElementById('cfRef').value = '';
+      openModal('cashflowModal');
+    }
+
+    function handleSaveCashflow(e) {
+      e.preventDefault();
+      const type = document.getElementById('cfType').value;
+      const date = document.getElementById('cfDate').value;
+      const amount = Number(document.getElementById('cfAmount').value) || 0;
+      const desc = document.getElementById('cfDesc').value.trim();
+      const ref = document.getElementById('cfRef').value.trim();
+
+      if (amount <= 0 || !desc) {
+        alert('Vui lòng nhập số tiền và nội dung thu chi!');
+        return;
+      }
+
+      appData.cashflows.push({
+        id: 'CF_' + Date.now(),
+        type,
+        date,
+        amount,
+        desc,
+        ref
+      });
+
+      saveData();
+      closeModal('cashflowModal');
+      renderCashflowModule();
+      showToast('Đã ghi nhận giao dịch thu chi vào sổ quỹ!', 'success');
+    }
+
+    /* ============================================================
+       PHÂN HỆ 8: BÁO CÁO VÀ CẢNH BÁO THÔNG MINH
+       ============================================================ */
+    function switchReportTab(tabKey) {
+      // [SỬA LỖI TC33] Khóa truyền vào có dạng 'report-stock'... trong khi id phần tử là 'rep-tab-stock'
+      const rawKey = String(tabKey);
+      tabKey = rawKey.replace(/^report-/, '');
+      document.querySelectorAll('.rep-tab-content').forEach(c => c.style.display = 'none');
+      document.getElementById('rep-tab-' + tabKey).style.display = 'block';
+
+      const tabBtns = document.querySelectorAll('#sec-reports .tab-btn');
+      tabBtns.forEach(btn => btn.classList.remove('active'));
+      const activeBtn = Array.from(tabBtns).find(b => (b.getAttribute('onclick') || '').includes("'" + rawKey + "'"));
+      if (activeBtn) activeBtn.classList.add('active');
+
+      if (tabKey === 'stock') renderStockReport();
+      if (tabKey === 'finance') renderFinanceReport();
+      if (tabKey === 'alerts') renderAnomalyAlerts();
+    }
+
+    function renderReportsModule() {
+      renderStockReport();
+      renderFinanceReport();
+      renderAnomalyAlerts();
+    }
+
+    function renderReportEmptyState(message) {
+      return `
+        <div style="padding: 24px; text-align: center; color: var(--text-muted);">
+          <p style="margin-bottom: 12px;">${message}</p>
+          <p style="margin-bottom: 16px;">Bạn có thể nạp dữ liệu mẫu để xem báo cáo tồn kho, doanh thu, lợi nhuận và cảnh báo sản xuất. Dữ liệu mẫu sẽ thay thế dữ liệu hiện tại sau khi bạn xác nhận.</p>
+          <button class="btn btn-primary btn-sm" onclick="loadSampleData()">Nạp dữ liệu mẫu để xem báo cáo</button>
+        </div>
+      `;
+    }
+
+    // 8.1 Báo cáo tồn kho
+    function renderStockReport() {
+      const tbody = document.getElementById('reportStockTableBody');
+      const rows = [];
+
+      // Nguyên vật liệu
+      appData.materials.forEach(m => {
+        if (!m.disabled) {
+          const isLow = m.stock <= m.minStock;
+          rows.push(`
+            <tr style="${isLow ? 'background-color: #fef2f2; border-left: 4px solid var(--danger);' : ''}">
+              <td><span class="badge badge-primary">Nguyên vật liệu</span></td>
+              <td>${m.code}</td>
+              <td><strong>${m.name}</strong></td>
+              <td style="font-weight: 700; color: ${isLow ? 'var(--danger)' : 'inherit'};">${m.stock} ${m.unit}</td>
+              <td>${m.minStock} ${m.unit}</td>
+              <td>${isLow ? '<span class="badge badge-danger">⚠️ Chạm/Dưới ngưỡng tối thiểu</span>' : '<span class="badge badge-success">Đủ định mức</span>'}</td>
+              <td>
+                ${isLow ? '<button class="btn btn-warning btn-sm" onclick="openStockInModal()">+ Nhập hàng ngay</button>' : '-'}
+              </td>
+            </tr>
+          `);
+        }
+      });
+
+      // Thành phẩm
+      appData.products.forEach(p => {
+        const isOutOfStock = p.stock === 0;
+        rows.push(`
+          <tr style="${isOutOfStock ? 'background-color: #fffbeb; border-left: 4px solid var(--warning);' : ''}">
+            <td><span class="badge badge-success">Giày thành phẩm</span></td>
+            <td>${p.code}</td>
+            <td><strong>${p.name}</strong> (Size ${p.size}, ${p.color})</td>
+            <td style="font-weight: 700; color: ${isOutOfStock ? 'var(--danger)' : 'inherit'};">${p.stock} đôi</td>
+            <td>5 đôi</td>
+            <td>${isOutOfStock ? '<span class="badge badge-danger">Hết hàng</span>' : (p.stock < 5 ? '<span class="badge badge-warning">Tồn ít</span>' : '<span class="badge badge-success">Sẵn hàng</span>')}</td>
+            <td>
+              ${p.stock < 5 ? '<button class="btn btn-primary btn-sm" onclick="openCreateProdOrderModal()">+ Lập lệnh SX</button>' : '-'}
+            </td>
+          </tr>
+        `);
+      });
+
+      if (rows.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7">${renderReportEmptyState('Chưa có nguyên vật liệu hoặc thành phẩm để lập báo cáo tồn kho.')}</td></tr>`;
+      } else {
+        tbody.innerHTML = rows.join('');
+      }
+    }
+
+    // 8.2 Báo cáo doanh thu & Lợi nhuận gộp
+    function renderFinanceReport() {
+      const period = document.getElementById('reportFinanceTimeFilter').value;
+      const now = new Date();
+      let totalRev = 0;
+      let totalCost = 0;
+      const orderRows = [];
+
+      const filteredOrders = appData.salesOrders.filter(so => {
+        if (period === 'all') return true;
+        const orderDate = new Date(`${so.date}T00:00:00`);
+        if (Number.isNaN(orderDate.getTime())) return false;
+        if (period === 'month') {
+          return orderDate.getFullYear() === now.getFullYear() &&
+            orderDate.getMonth() === now.getMonth();
+        }
+        if (period === 'quarter') {
+          return orderDate.getFullYear() === now.getFullYear() &&
+            Math.floor(orderDate.getMonth() / 3) === Math.floor(now.getMonth() / 3);
+        }
+        return true;
+      });
+
+      filteredOrders.forEach(so => {
+        const rev = Number(so.total) || 0;
+        totalRev += rev;
+
+        // Tính giá vốn NVL ước tính căn cứ theo BOM của sản phẩm bán
+        let unitCost = 0;
+        const bom = appData.boms.find(b => b.productId === so.productId);
+        if (bom) {
+          bom.items.forEach(it => {
+            const mat = appData.materials.find(m => m.id === it.materialId);
+            if (mat) {
+              unitCost += (it.norm || 0) * (mat.price || 0);
+            }
+          });
+        }
+        const orderCost = unitCost * so.qty;
+        totalCost += orderCost;
+        const gross = rev - orderCost;
+
+        const prod = appData.products.find(p => p.id === so.productId);
+
+        orderRows.push(`
+          <tr>
+            <td><strong>${so.code}</strong></td>
+            <td>${so.date}</td>
+            <td>${prod ? prod.name : 'Giày'}</td>
+            <td>${so.qty} đôi</td>
+            <td style="font-weight: 700;">${formatMoney(rev)}</td>
+            <td>${formatMoney(orderCost)}</td>
+            <td style="font-weight: 700; color: ${gross >= 0 ? 'var(--success)' : 'var(--danger)'};">
+              ${formatMoney(gross)}
+            </td>
+          </tr>
+        `);
+      });
+
+      document.getElementById('repTotalRevenue').innerText = formatMoney(totalRev);
+      document.getElementById('repTotalCOGS').innerText = formatMoney(totalCost);
+      const grossProfit = totalRev - totalCost;
+      const gpEl = document.getElementById('repGrossProfit');
+      gpEl.innerText = formatMoney(grossProfit);
+      gpEl.style.color = grossProfit >= 0 ? 'var(--success)' : 'var(--danger)';
+
+      const tbody = document.getElementById('repFinanceOrdersTableBody');
+      if (orderRows.length === 0) {
+        const message = appData.salesOrders.length === 0
+          ? 'Chưa có đơn hàng bán để tính doanh thu và lợi nhuận.'
+          : 'Không có đơn hàng trong khoảng thời gian đã chọn.';
+        const content = appData.salesOrders.length === 0
+          ? renderReportEmptyState(message)
+          : `<div style="padding: 16px; text-align: center; color: var(--text-muted);">${message}</div>`;
+        tbody.innerHTML = `<tr><td colspan="7">${content}</td></tr>`;
+      } else {
+        tbody.innerHTML = orderRows.join('');
+      }
+    }
+
+    // 8.3 Cảnh báo bất thường sản xuất
+    function renderAnomalyAlerts() {
+      const container = document.getElementById('anomalyAlertsContainer');
+      const alerts = getSystemAlerts()
+        .map((alert, index) => ({ alert, index }))
+        .filter(({ alert }) => alert.category === 'production');
+      const productionOrdersWithExports = appData.productionOrders.filter(po =>
+        po.status !== 'Đã hủy' && po.actualExported && po.actualExported.length > 0
+      );
+
+      if (productionOrdersWithExports.length === 0) {
+        container.innerHTML = renderReportEmptyState('Chưa có lệnh sản xuất đã xuất nguyên vật liệu để đối chiếu hao hụt với định mức BOM.');
+        return;
+      }
+
+      if (alerts.length === 0) {
+        container.innerHTML = '<div style="padding: 16px; text-align: center; color: var(--text-muted);">Đã đối chiếu các lệnh sản xuất có xuất nguyên vật liệu. Chưa phát hiện hao hụt vượt ngưỡng 5%.</div>';
+        return;
+      }
+
+      container.innerHTML = alerts.map(({ alert, index }) => `
+        <div class="alert-box alert-${alert.type}" onclick="triggerAlertAction(${index})">
+          <div style="font-size: 24px;">${alert.type === 'danger' ? '🚨' : '⚠️'}</div>
+          <div>
+            <strong style="font-size: 18px;">${alert.title}</strong>
+            <div style="margin-top: 4px;">${alert.message}</div>
+            <div style="margin-top: 8px; font-weight: 600; text-decoration: underline;">Bấm vào đây để điều hướng đến phân hệ tương ứng xử lý ngay →</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    /* ============================================================
+       PHÂN HỆ 9: TÀI KHOẢN VÀ THÔNG TIN PHÂN QUYỀN
+       ============================================================ */
+    function renderAccountModule() {
+      document.getElementById('accUsername').value = appData.userAccount.username;
+      document.getElementById('accFullName').value = appData.userAccount.fullname;
+
+      const roleNames = { owner: 'Chủ xưởng', warehouse: 'Thủ kho', sales: 'Bán hàng' };
+      document.getElementById('accRoleName').value = roleNames[appData.currentRole] || appData.currentRole;
+    }
+
+    function saveAccountInfo() {
+      const name = document.getElementById('accFullName').value.trim();
+      if (!name) {
+        alert('Vui lòng nhập họ và tên');
+        return;
+      }
+      appData.userAccount.fullname = name;
+      saveData();
+      showToast('Đã cập nhật thông tin tài khoản thành công!', 'success');
+    }
+
+    function handlePasswordChange(e) {
+      e.preventDefault();
+      const oldPass = document.getElementById('oldPassword').value;
+      const newPass = document.getElementById('newPassword').value;
+      const confPass = document.getElementById('confirmPassword').value;
+
+      if (oldPass !== appData.userAccount.password) {
+        alert('Mật khẩu hiện tại không chính xác! (Mật khẩu mặc định là: password123)');
+        return;
+      }
+
+      if (newPass !== confPass) {
+        alert('Mật khẩu mới và xác nhận mật khẩu không trùng khớp!');
+        return;
+      }
+
+      appData.userAccount.password = newPass;
+      saveData();
+      document.getElementById('oldPassword').value = '';
+      document.getElementById('newPassword').value = '';
+      document.getElementById('confirmPassword').value = '';
+      showToast('Đã đổi mật khẩu thành công (Mô phỏng)!', 'success');
+    }
+
+    /* ============================================================
+       MODAL CONTROLLER (MỞ / ĐÓNG HỘP THOẠI)
+       ============================================================ */
+    function openModal(modalId) {
+      const modal = document.getElementById(modalId);
+      if (modal) {
+        modal.classList.add('active');
+        // Tự động focus vào ô nhập đầu tiên
+        const firstInput = modal.querySelector('input:not([readonly]), select');
+        if (firstInput) setTimeout(() => firstInput.focus(), 100);
+      }
+    }
+
+    function closeModal(modalId) {
+      const modal = document.getElementById(modalId);
+      if (modal) modal.classList.remove('active');
+    }
+
+    // Đóng modal khi nhấn phím Escape
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        document.querySelectorAll('.modal-backdrop.active').forEach(m => m.classList.remove('active'));
+      }
+    });
+
+    /* ============================================================
+       HÀM TỔNG HỢP RENDER ALL
+       ============================================================ */
+    function renderAll() {
+      renderDashboard();
+      renderCategories();
+      renderBomModule();
+      renderProductionOrdersTable();
+      renderWarehouseModule();
+      renderSalesOrdersTable();
+      renderCashflowModule();
+      renderReportsModule();
+      renderAccountModule();
+      updateAllBadgesAndAlerts();
+
+      // Cập nhật vai trò hiển thị
+      document.getElementById('currentRoleSelect').value = appData.currentRole;
+      const roleNames = { owner: 'Chủ xưởng', warehouse: 'Thủ kho', sales: 'Bán hàng' };
+      document.getElementById('currentUserNameDisplay').innerText = `${roleNames[appData.currentRole]} (Demo)`;
+      applyRolePermissions();
+    }
+
+    // KHỞI ĐỘNG HỆ THỐNG
+    window.addEventListener('DOMContentLoaded', () => {
+      loadData();
+      renderAll();
+    });
+  </script>
+</body>
+</html>
