@@ -1,0 +1,12 @@
+{
+  "name": "backend-quan-ly-xuong-giay",
+  "version": "1.0.0",
+  "description": "Backend Express cho giao diện quản lý xưởng giày",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}
